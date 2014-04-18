@@ -1,0 +1,33 @@
+Namespaces:
+  =: io.murano.apps.apache
+  std: io.murano
+  res: io.murano.resources
+
+
+Name: Tomcat
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+  repository:
+    Contract: $.string().notNull()
+
+Workflow:
+  deploy:
+    Body:
+      - $.instance.deploy()
+      - $resources: new('io.murano.system.Resources')
+      # Deploy Apache Tomcat
+      - $template: $resources.yaml('DeployTomcat.template')
+      - $.instance.agent.call($template, $resources)
+      # Deploy app over Tomcat
+      - $template: $resources.yaml('DeployTomcatApp.template').bind(dict(
+            repository => $.repository,
+          ))
+      - $.instance.agent.call($template, $resources)
