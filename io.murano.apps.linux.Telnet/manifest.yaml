@@ -1,0 +1,12 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.linux.Telnet
+Name: Telnet
+Description: |
+ Telnet is the traditional protocol for making remote console connections over TCP.
+Author: 'Mirantis, Inc'
+Tags: [Linux, connection]
+Classes:
+ io.murano.apps.linux.Telnet: telnet.yaml
+UI: telnet.yaml
+Logo: telnet.png

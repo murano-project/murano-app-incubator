@@ -1,0 +1,101 @@
+Version: 2
+
+Templates:
+  instance:
+    ?:
+      type: io.murano.resources.Instance
+    name: generateHostname($.serviceConfiguration.unitNamingPattern, 1)
+    flavor: $.instanceConfiguration.flavor
+    image: $.instanceConfiguration.osImage
+
+Application:
+  ?:
+    type: io.murano.apps.linux.Telnet
+  name: $.serviceConfiguration.name
+  instance: $instance
+
+
+Forms:
+  - serviceConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: Telnet service that can be installed at linux
+        - name: name
+          type: string
+          label: Service Name
+          description: >-
+            Enter a desired name for a service. Just A-Z, a-z, 0-9, dash and
+            underline are allowed.
+          minLength: 2
+          maxLength: 64
+          regexpValidator: '^[-\w]+$'
+          errorMessages:
+            invalid: Just letters, numbers, underscores and hyphens are allowed.
+          helpText: Just letters, numbers, underscores and hyphens are allowed.
+        - name: dcInstances
+          type: integer
+          hidden: true
+          initial: 1
+        - name: assignFloatingIP
+          type: floatingip
+          label: Assign Floating IP
+          description: >-
+             Select to true to assign floating IP automatically
+          initial: false
+          required: false
+          widgetMedia:
+            css: {all: ['muranodashboard/css/checkbox.css']}
+        - name: unitNamingPattern
+          type: string
+          label: Hostname
+          description: >-
+            For your convenience instance hostname can be specified.
+            Enter a name or leave blank for random name generation.
+          required: false
+          regexpValidator: '^(([a-zA-Z0-9#][a-zA-Z0-9-#]*[a-zA-Z0-9#])\.)*([A-Za-z0-9#]|[A-Za-z0-9#][A-Za-z0-9-#]*[A-Za-z0-9#])$'
+          helpText: Optional field for a machine hostname
+          # temporaryHack
+          widgetMedia:
+            js: ['muranodashboard/js/support_placeholder.js']
+            css: {all: ['muranodashboard/css/support_placeholder.css']}
+      validators:
+        # if unitNamingPattern is given and dcInstances > 1, then '#' should occur in unitNamingPattern
+        - expr: $.serviceConfiguration.dcInstances < 2 or not $.serviceConfiguration.unitNamingPattern.bool() or '#' in $.serviceConfiguration.unitNamingPattern
+          message: Incrementation symbol "#" is required in the Hostname template
+  - instanceConfiguration:
+          fields:
+            - name: title
+              type: string
+              required: false
+              hidden: true
+              descriptionTitle: Instance Configuration
+              description: Specify some instance parameters on which service would be created.
+            - name: flavor
+              type: flavor
+              label: Instance flavor
+              description: >-
+                Select registered in Openstack flavor. Consider that service performance
+                depends on this parameter.
+              required: false
+            - name: osImage
+              type: image
+              imageType: linux
+              label: Instance image
+              description: >-
+                Select valid image for a service. Image should already be prepared and
+                registered in glance.
+            - name: keyPair
+              type: keypair
+              label: Key Pair
+              description: >-
+                Select the Key Pair to control access to instances. You can login to
+                instances using this KeyPair after the deployment of service.
+              required: false
+            - name: availabilityZone
+              type: azone
+              label: Availability zone
+              description: Select availability zone where service would be installed.
+              required: false

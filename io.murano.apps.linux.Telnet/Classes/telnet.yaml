@@ -1,0 +1,27 @@
+Namespaces:
+  =: io.murano.apps.linux
+  std: io.murano
+  res: io.murano.resources
+
+
+Name: Telnet
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+
+Workflow:
+  deploy:
+    Body:
+      - $.instance.deploy()
+      - $resources: new('io.murano.system.Resources')
+      # Deploy Telnet
+      - $template: $resources.yaml('DeployTelnet.template')
+      - $.instance.agent.call($template, $resources)
+
