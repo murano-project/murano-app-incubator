@@ -9,9 +9,9 @@ Name: Core library
 Description: |
   Core MuranoPL library
 
-Author: 'Mirantis, Inc'
+Author: 'murano.io'
 
-Tags: [MuranoPL, core]
+Tags: [MuranoPL]
 
 Classes:
   io.murano.Object: Object.yaml
