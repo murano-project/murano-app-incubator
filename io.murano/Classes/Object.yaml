@@ -1,6 +1,0 @@
-Namespaces:
-    =: io.murano
-Name: Object
-
-Workflow:
-  initialize:
