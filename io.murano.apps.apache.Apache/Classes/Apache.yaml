@@ -5,7 +5,7 @@ Namespaces:
   sys: io.murano.system
 
 
-Name: Tomcat
+Name: Apache
 
 Extends: std:Application
 
@@ -13,22 +13,19 @@ Properties:
   name:
     Contract: $.string().notNull()
 
+  enablePHP:
+    Contract: $.bool()
+    Default: false
+
   instance:
     Contract: $.class(res:Instance).notNull()
-
-  repository:
-    Contract: $.string().notNull()
 
 Workflow:
   deploy:
     Body:
       - $.instance.deploy()
       - $resources: new(sys:Resources)
-      # Deploy Apache Tomcat
-      - $template: $resources.yaml('DeployTomcat.template')
-      - $.instance.agent.call($template, $resources)
-      # Deploy app over Tomcat
-      - $template: $resources.yaml('DeployTomcatApp.template').bind(dict(
-            repository => $.repository
+      - $template: $resources.yaml('DeployApache.template').bind(dict(
+            enablePHP => $.enablePHP
           ))
       - $.instance.agent.call($template, $resources)

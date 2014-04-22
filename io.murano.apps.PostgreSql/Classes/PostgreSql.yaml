@@ -2,6 +2,7 @@ Namespaces:
   =: io.murano.apps.PostgreSql
   std: io.murano
   res: io.murano.resources
+  sys: io.murano.system
 
 
 Name: PostgreSql
@@ -28,7 +29,7 @@ Workflow:
   deploy:
     Body:
       - $.instance.deploy()
-      - $resources: new('io.murano.system.Resources')
+      - $resources: new(sys:Resources)
       # Deploy PostgreSql
       - $template: $resources.yaml('DeployPostgreSql.template')
       - $.instance.agent.call($template, $resources)
@@ -42,6 +43,6 @@ Workflow:
 
   getIp:
     Body:
-      - $resources: new('io.murano.system.Resources')
+      - $resources: new(sys:Resources)
       - $template: $resources.yaml('GetIP.template')
       - $.instance.agent.call($template, $resources)
