@@ -19,9 +19,12 @@ Properties:
 Workflow:
   deploy:
     Body:
+      - $this.find(std:Environment).reporter.report($this, 'Creating VM for Telnet instace.')
       - $.instance.deploy()
+      - $this.find(std:Environment).reporter.report($this, 'Instance is created. Setup Telnet service.')
       - $resources: new('io.murano.system.Resources')
       # Deploy Telnet
       - $template: $resources.yaml('DeployTelnet.template')
       - $.instance.agent.call($template, $resources)
+      - $this.find(std:Environment).reporter.report($this, 'Telnet service setup is done.')
 
