@@ -20,6 +20,7 @@ if [[ "$DistroBasedOn" != "redhat" ]]; then
     exit 1
 fi
 
+
 su -c "psql -d postgres -c \"CREATE DATABASE $1\"" -s /bin/sh postgres
 su -c "psql -d postgres -c \"CREATE USER $2 WITH PASSWORD '$3'\"" -s /bin/sh postgres
 su -c "psql -d postgres -c \"GRANT ALL PRIVILEGES ON DATABASE $1 to $2;\"" -s /bin/sh postgres

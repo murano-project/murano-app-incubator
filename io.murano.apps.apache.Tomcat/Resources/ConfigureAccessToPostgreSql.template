@@ -6,7 +6,7 @@ Parameters:
   database: $database
   username: $username
   password: $password
-  host: $databaseHost
+  host: $host
 
 Body: |
   return configure('{0} {1} {2} {3}'.format(args.database, args.username, args.password, args.host)).stdout

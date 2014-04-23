@@ -40,9 +40,3 @@ Workflow:
             password => $.password
           ))
       - $.instance.agent.call($template, $resources)
-
-  getIp:
-    Body:
-      - $resources: new(sys:Resources)
-      - $template: $resources.yaml('GetIP.template')
-      - $.instance.agent.call($template, $resources)

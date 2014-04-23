@@ -3,6 +3,7 @@ Namespaces:
   std: io.murano
   res: io.murano.resources
   sys: io.murano.system
+  apps: io.murano.apps
 
 
 Name: Tomcat
@@ -19,6 +20,9 @@ Properties:
   repository:
     Contract: $.string().notNull()
 
+  database:
+    Contract: $.class(apps:PostgreSql).notNull()
+
 Workflow:
   deploy:
     Body:
@@ -30,5 +34,14 @@ Workflow:
       # Deploy app over Tomcat
       - $template: $resources.yaml('DeployTomcatApp.template').bind(dict(
             repository => $.repository
+          ))
+      - $.instance.agent.call($template, $resources)
+      # Configure access to PostgreSql
+      - $.database.deploy()
+      - $template: $resources.yaml('ConfigureAccessToPostgreSql.template').bind(dict(
+            database => $.database.database,
+            username => $.database.username,
+            password => $.database.password,
+            host => $.database.instance.ipAddresses[0]
           ))
       - $.instance.agent.call($template, $resources)
