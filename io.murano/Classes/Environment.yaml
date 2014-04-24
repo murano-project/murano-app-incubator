@@ -1,0 +1,41 @@
+Namespaces:
+    =: io.murano
+    sys: io.murano.system
+
+Name: Environment
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  applications:
+    Contract: [$.class(Application).owned().notNull()]
+
+  agentListener:
+    Contract: $.class(sys:AgentListener)
+    Usage: Runtime
+
+  stack:
+    Contract: $.class(sys:HeatStack)
+    Usage: Runtime
+
+  instanceNotifier:
+    Contract: $.class(sys:InstanceNotifier)
+    Usage: Runtime
+
+Workflow:
+  initialize:
+    Body:
+      - $this.agentListener: new(sys:AgentListener, name => $.name)
+      - $this.stack: new(sys:HeatStack, name => $.name)
+      - $this.instanceNotifier: new(sys:InstanceNotifier, environment => $this)
+
+  deploy:
+    Body:
+      - $.agentListener.start()
+      - If: len($.applications) = 0
+        Then:
+          - $.stack.delete()
+        Else:
+          - $.applications.pselect($.deploy())
+      - $.agentListener.stop()
