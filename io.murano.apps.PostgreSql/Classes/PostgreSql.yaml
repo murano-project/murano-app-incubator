@@ -28,11 +28,13 @@ Properties:
 Workflow:
   deploy:
     Body:
+      - $this.find(std:Environment).reporter.report($this, 'Creating VM for a PostgreSql app.')
       - $.instance.deploy()
       - $resources: new(sys:Resources)
       # Deploy PostgreSql
       - $template: $resources.yaml('DeployPostgreSql.template')
       - $.instance.agent.call($template, $resources)
+      - $this.find(std:Environment).reporter.report($this, 'Configure PostgreSql database.')
       # Configure Database on PostgreSQL
       - $template: $resources.yaml('ConfigurePostgreSqlDatabase.template').bind(dict(
             database => $.database,
@@ -40,3 +42,4 @@ Workflow:
             password => $.password
           ))
       - $.instance.agent.call($template, $resources)
+      - $this.find(std:Environment).reporter.report($this, 'PostgreSql application is installed.')

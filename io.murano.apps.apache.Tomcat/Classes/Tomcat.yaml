@@ -26,17 +26,22 @@ Properties:
 Workflow:
   deploy:
     Body:
+      - $this.find(std:Environment).reporter.report($this, 'Creating VM for a Tomcat app.')
       - $.instance.deploy()
       - $resources: new(sys:Resources)
       # Deploy Apache Tomcat
       - $template: $resources.yaml('DeployTomcat.template')
+      - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying Apache server')
       - $.instance.agent.call($template, $resources)
+
       # Deploy app over Tomcat
       - $template: $resources.yaml('DeployTomcatApp.template').bind(dict(
             repository => $.repository
           ))
+      - $this.find(std:Environment).reporter.report($this, 'Setup Tomcat application.')
       - $.instance.agent.call($template, $resources)
       # Configure access to PostgreSql
+      - $this.find(std:Environment).reporter.report($this, 'Configure access to PostgreSql.')
       - $.database.deploy()
       - $template: $resources.yaml('ConfigureAccessToPostgreSql.template').bind(dict(
             database => $.database.database,
@@ -45,3 +50,4 @@ Workflow:
             host => $.database.instance.ipAddresses[0]
           ))
       - $.instance.agent.call($template, $resources)
+      - $this.find(std:Environment).reporter.report($this, 'Tomcat application is installed')
