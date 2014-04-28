@@ -23,7 +23,6 @@ Properties:
     Default:  nova
 
   # Put agent here because it must be available to class's children
-  #??? Why do we need contract here?
   agent:
     Contract: $.class(sys:Agent)
     Usage: Runtime
@@ -37,8 +36,6 @@ Workflow:
     Body:
       - $.agent: new(sys:Agent, host => $this)
       - $.env: $.find(std:Environment).require()
-      #BUG! Using resources object as class property causes errors.
-      #- $.res: new(sys:Resources)
 
   # Class method
   deploy:
@@ -66,7 +63,6 @@ Workflow:
       # Defining patterns to replace in config file.
       # We create a dictionary here.
       # function config() is defined in DSL and allows to fetch a value from conductor's config
-      #??? Why do we need apply str() function to config(rabbitmq, ssl) ? Isn't it already a string?
       - $configReplacements:
           "%RABBITMQ_HOST%":        config(rabbitmq, host)
           "%RABBITMQ_PORT%":        config(rabbitmq, port)
