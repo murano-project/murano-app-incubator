@@ -1,0 +1,29 @@
+Namespaces:
+  =:    io.murano.apps.DemoApp
+  sys:  io.murano.system
+  std:  io.murano
+
+
+Name: DemoApp
+
+
+Extends:  std:Application
+
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(DemoInstance).notNull()
+
+
+Workflow:
+  deploy:
+    Body:
+      - $.instance.deploy()
+
+      - $res: new(sys:Resources)
+      - $template: $res.json('demo-explan.json')
+
+      - $.instance.agent.call($template, $res)

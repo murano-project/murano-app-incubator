@@ -1,0 +1,14 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.DemoApp
+Name: DemoApp
+Description: |
+ DemoApp is a lightweigt service which main purpose is to demonstrate
+ how application could be added to and deployed using Murano.
+ It is build around CirrOS system, which could be easily started
+ even in environment with netsted virtualisaion.
+Author: 'Mirantis, Inc'
+Tags: [Demo, CirrOS]
+Classes:
+ io.murano.apps.DemoApp.DemoApp: DemoApp.yaml
+ io.murano.apps.DemoApp.DemoInstance: DemoInstance.yaml
