@@ -11,6 +11,7 @@ Application:
     name: generateHostname($.appConfiguration.unitNamingPattern, 1)
     flavor: $.instanceConfiguration.flavor
     image: $.instanceConfiguration.osImage
+    assignFloatingIp: $.appConfiguration.assignFloatingIP
 
 Forms:
   - appConfiguration:
@@ -26,6 +27,15 @@ Forms:
           type: boolean
           description: >-
              Add php support to the Apache WebServer
+          initial: false
+          required: false
+          widgetMedia:
+            css: {all: ['muranodashboard/css/checkbox.css']}
+        - name: assignFloatingIP
+          type: boolean
+          label: Assign Floating IP
+          description: >-
+             Select to true to assign floating IP automatically
           initial: false
           required: false
           widgetMedia:

@@ -12,6 +12,7 @@ Application:
     name: generateHostname($.appConfiguration.unitNamingPattern, 1)
     flavor: $.instanceConfiguration.flavor
     image: $.instanceConfiguration.osImage
+    assignFloatingIp: $.appConfiguration.assignFloatingIP
 
 Forms:
   - appConfiguration:
@@ -33,6 +34,15 @@ Forms:
           errorMessages:
             invalid: Enter a correct git repository URL
           helpText: Enter a valid git repository URL
+        - name: assignFloatingIP
+          type: boolean
+          label: Assign Floating IP
+          description: >-
+             Select to true to assign floating IP automatically
+          initial: false
+          required: false
+          widgetMedia:
+            css: {all: ['muranodashboard/css/checkbox.css']}
         - name: dcInstances
           type: integer
           hidden: true

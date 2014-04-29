@@ -11,6 +11,7 @@ Templates:
       name: generateHostname($.serviceConfiguration.unitNamingPattern, 1)
       flavor: $.instanceConfiguration.flavor
       image: $.instanceConfiguration.osImage
+      assignFloatingIp: $.appConfiguration.assignFloatingIP
 
   secondaryController:
     ?:
@@ -107,7 +108,7 @@ Forms:
           label: Recovery password
         - name: assignFloatingIP
           required: false
-          type: floatingip
+          type: boolean
           label: Assign Floating IP
           description: >-
              Select to true to assign floating IP automatically to Primary DC

@@ -13,6 +13,7 @@ Application:
     name: generateHostname($.appConfiguration.unitNamingPattern, 1)
     flavor: $.instanceConfiguration.flavor
     image: $.instanceConfiguration.osImage
+    assignFloatingIp: $.appConfiguration.assignFloatingIP
 
 Forms:
   - appConfiguration:
@@ -39,6 +40,15 @@ Forms:
           descriptionTitle: Password
           description: >-
             Please, provide password that is going to be used to connect to the database
+        - name: assignFloatingIP
+          type: boolean
+          label: Assign Floating IP
+          description: >-
+             Select to true to assign floating IP automatically
+          initial: false
+          required: false
+          widgetMedia:
+            css: {all: ['muranodashboard/css/checkbox.css']}
         - name: dcInstances
           type: integer
           hidden: true
