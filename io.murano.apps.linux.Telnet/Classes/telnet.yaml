@@ -3,7 +3,6 @@ Namespaces:
   std: io.murano
   res: io.murano.resources
 
-
 Name: Telnet
 
 Extends: std:Application
@@ -17,9 +16,19 @@ Properties:
 
 
 Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
   deploy:
     Body:
       - $this.find(std:Environment).reporter.report($this, 'Creating VM for Telnet instace.')
+      - $securityGroupIngress:
+          - ToPort: 23
+            FromPort: 23
+            IpProtocol: tcp
+            External: True
+      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
       - $.instance.deploy()
       - $this.find(std:Environment).reporter.report($this, 'Instance is created. Setup Telnet service.')
       - $resources: new('io.murano.system.Resources')
