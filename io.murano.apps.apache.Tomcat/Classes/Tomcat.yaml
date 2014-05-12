@@ -24,9 +24,23 @@ Properties:
     Contract: $.class(apps:PostgreSql).notNull()
 
 Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
   deploy:
     Body:
       - $this.find(std:Environment).reporter.report($this, 'Creating VM for a Tomcat app.')
+      - $securityGroupIngress:
+          - ToPort: 80
+            FromPort: 80
+            IpProtocol: tcp
+            External: True
+          - ToPort: 443
+            FromPort: 443
+            IpProtocol: tcp
+            External: True
+      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
       - $.instance.deploy()
       - $resources: new(sys:Resources)
       # Deploy Apache Tomcat

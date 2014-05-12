@@ -6,11 +6,12 @@ Templates:
       type: io.murano.windows.activeDirectory.PrimaryController
     host:
       ?:
-        type: io.murano.services.windows.Host
+        type: io.murano.windows.Host
       adminPassword: $.serviceConfiguration.adminPassword
       name: generateHostname($.serviceConfiguration.unitNamingPattern, 1)
       flavor: $.instanceConfiguration.flavor
       image: $.instanceConfiguration.osImage
+      assignFloatingIp: $.serviceConfiguration.assignFloatingIP
 
   secondaryController:
     ?:
@@ -107,7 +108,7 @@ Forms:
           label: Recovery password
         - name: assignFloatingIP
           required: false
-          type: floatingip
+          type: boolean
           label: Assign Floating IP
           description: >-
              Select to true to assign floating IP automatically to Primary DC

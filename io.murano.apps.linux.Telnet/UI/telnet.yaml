@@ -7,6 +7,7 @@ Templates:
     name: generateHostname($.appConfiguration.unitNamingPattern, 1)
     flavor: $.instanceConfiguration.flavor
     image: $.instanceConfiguration.osImage
+    assignFloatingIp: $.appConfiguration.assignFloatingIP
 
 Application:
   ?:
@@ -40,7 +41,7 @@ Forms:
           hidden: true
           initial: 1
         - name: assignFloatingIP
-          type: floatingip
+          type: boolean
           label: Assign Floating IP
           description: >-
              Select to true to assign floating IP automatically
