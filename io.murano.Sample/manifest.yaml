@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: {{io.murano.Sample}}
+Name: {{Sample}}
+Description: |
+ {{Sample package provides easy way to create new package.}}
+Author: 'Mirantis, Inc'
+Tags: [{{Sample}}]
+Classes:
+ {{io.murano.Sample}}: {{Sample.yaml}}
