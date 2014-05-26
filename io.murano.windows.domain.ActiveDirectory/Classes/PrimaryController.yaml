@@ -1,17 +1,20 @@
 Namespaces:
-    =: io.murano.windows.activeDirectory
+    =: io.murano.windows.domain
     std: io.murano
     sys: io.murano.system
 
+
 Name: PrimaryController
+
 
 Extends: Controller
 
-Properties:
 
+Properties:
   dnsIp:
     Contract: $.string()
     Usage: Out
+
 
 Workflow:
   initialize:

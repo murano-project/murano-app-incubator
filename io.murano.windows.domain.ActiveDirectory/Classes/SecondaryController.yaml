@@ -1,11 +1,14 @@
 Namespaces:
-  =: io.murano.windows.activeDirectory
+  =: io.murano.windows.domain
   std: io.murano
   sys: io.murano.system
 
+
 Name: SecondaryController
 
+
 Extends: Controller
+
 
 Workflow:
   initialize:
@@ -25,4 +28,3 @@ Workflow:
             domainPassword => $.domain.adminPassword
           ))
       - $.host.agent.call($template, $resources)
-#
