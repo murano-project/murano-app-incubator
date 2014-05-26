@@ -1,0 +1,41 @@
+Namespaces:
+    =: io.murano.windows.domain
+    res: io.murano.resources
+    sys: io.murano.system
+    win: io.murano.windows
+
+
+Name: DomainHost
+
+
+Extends: win:Host
+
+
+Properties:
+  domain:
+    Contract: $.class(ActiveDirectory).notNull()
+
+
+Workflow:
+  deploy:
+    Arguments:
+    Body:
+      - $.super($.deploy())
+      #- $.joinDomain($.domain)
+      # Workaround against broken ResourceManager:
+      - $.joinDomain($this.domain)
+
+  joinDomain:
+    Arguments:
+      - domain:
+          Contract: $.class(ActiveDirectory).notNull()
+    Body:
+      - $resources: new(sys:Resources)
+      - $template: $resources.json('JoinDomain.template').bind(dict(
+            domain         => $domain.name,
+            domainUser     => $domain.adminAccountName,
+            domainPassword => $domain.adminPassword,
+            ouPath         => '',
+            dnsIp          => $domain.primaryController.dnsIp
+          ))
+      - $.agent.call($template, $resources)

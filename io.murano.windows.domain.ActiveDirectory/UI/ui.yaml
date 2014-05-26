@@ -1,12 +1,13 @@
 Version: 2
 
+
 Templates:
   primaryController:
     ?:
-      type: io.murano.windows.activeDirectory.PrimaryController
+      type: io.murano.windows.domain.PrimaryController
     host:
       ?:
-        type: io.murano.windows.Host
+        type: io.murano.windows.DomainHost
       adminPassword: $.serviceConfiguration.adminPassword
       name: generateHostname($.serviceConfiguration.unitNamingPattern, 1)
       flavor: $.instanceConfiguration.flavor
@@ -15,21 +16,23 @@ Templates:
 
   secondaryController:
     ?:
-      type: io.murano.windows.activeDirectory.SecondaryController
+      type: io.murano.windows.domain.SecondaryController
     host:
       ?:
-        type: io.murano.services.windows.Host
+        type: io.murano.windows.DomainHost
       adminPassword: $.serviceConfiguration.adminPassword
       name: generateHostname($.serviceConfiguration.unitNamingPattern, $index + 1)
       flavor: $.instanceConfiguration.flavor
       image: $.instanceConfiguration.osImage
 
+
 Application:
   ?:
-    type: io.murano.windows.activeDirectory.ActiveDirectory
+    type: io.murano.windows.domain.ActiveDirectory
   name: $.serviceConfiguration.name
   primaryController: $primaryController
   secondaryControllers: repeat($secondaryController, $.serviceConfiguration.dcInstances - 1)
+
 
 Forms:
   - serviceConfiguration:
@@ -38,6 +41,7 @@ Forms:
           type: string
           hidden: true
           initial: standalone
+
         - name: name
           type: string
           label: Domain Name
@@ -59,11 +63,13 @@ Forms:
                 are used to delimit the components of domain style
                 names. Single-level domain is not
                 appropriate. Subdomains are not allowed.
+
             - expr:
                 regexpValidator: '(^[^.]+$|^[^.]{1,15}\..*$)'
               message: >-
                 NetBIOS name cannot be shorter than 1 symbol and
                 longer than 15 symbols.
+
             - expr:
                 regexpValidator: '(^[^.]+$|^[^.]*\.[^.]{2,63}.*$)'
               message: >-
@@ -72,6 +78,7 @@ Forms:
           helpText: >-
             Just letters, numbers and dashes are allowed.
             A dot can be used to create subdomains
+
         - name: dcInstances
           type: integer
           label: Instance Count
@@ -83,6 +90,7 @@ Forms:
           maxValue: 100
           initial: 1
           helpText: Enter an integer value between 1 and 100
+
         - name: adminAccountName
           type: string
           label: Account Name
@@ -90,6 +98,7 @@ Forms:
           regexpValidator: '^[-\w]+$'
           errorMessages:
             invalid: 'Just letters, numbers, underscores and hyphens are allowed.'
+
         - name: adminPassword
           type: password
           label: Administrator password
@@ -103,9 +112,11 @@ Forms:
             Once you forget your password you won't be able to
             operate  the service until recovery password would be entered. So it's
             better for Recovery and Administrator password to be different.
+
         - name: recoveryPassword
           type: password
           label: Recovery password
+
         - name: assignFloatingIP
           required: false
           type: boolean
@@ -116,6 +127,7 @@ Forms:
           required: false
           widgetMedia:
             css: {all: ['muranodashboard/css/checkbox.css']}
+
         - name: unitNamingPattern
           type: string
           label: Hostname template
@@ -133,10 +145,12 @@ Forms:
           widgetMedia:
             js: ['muranodashboard/js/support_placeholder.js']
             css: {all: ['muranodashboard/css/support_placeholder.css']}
+
       validators:
         # if unitNamingPattern is given and dcInstances > 1, then '#' should occur in unitNamingPattern
         - expr: $.serviceConfiguration.dcInstances < 2 or not $.serviceConfiguration.unitNamingPattern.bool() or '#' in $.serviceConfiguration.unitNamingPattern
           message: Incrementation symbol "#" is required in the Hostname template
+
   - instanceConfiguration:
       fields:
         - name: title
@@ -145,6 +159,7 @@ Forms:
           hidden: true
           descriptionTitle: Instance Configuration
           description: Specify some instance parameters on which service would be created.
+
         - name: flavor
           type: flavor
           label: Instance flavor
@@ -152,6 +167,7 @@ Forms:
             Select registered in Openstack flavor. Consider that service performance
             depends on this parameter.
           required: false
+
         - name: osImage
           type: image
           imageType: windows
@@ -159,6 +175,7 @@ Forms:
           description: >-
             Select valid image for a service. Image should already be prepared and
             registered in glance.
+
         - name: availabilityZone
           type: azone
           label: Availability zone

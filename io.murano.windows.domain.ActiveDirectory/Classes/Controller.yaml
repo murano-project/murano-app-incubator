@@ -1,18 +1,20 @@
 Namespaces:
-    =: io.murano.windows.activeDirectory
+    =: io.murano.windows.domain
     std: io.murano
     sys: io.murano.system
-    win: io.murano.windows
+
 
 Name: Controller
 
+
 Properties:
   host:
-    Contract: $.class(win:Host).notNull()
+    Contract: $.class(DomainHost).notNull()
 
   recoveryPassword:
     Contract: $.string().notNull()
     Default: P@ssw0rd
+
 
 Workflow:
   deploy:
