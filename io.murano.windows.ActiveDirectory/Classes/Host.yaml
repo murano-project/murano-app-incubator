@@ -6,7 +6,7 @@ Namespaces:
 
 Name: Host
 
-Extends: res:Instance
+Extends: res:WindowsInstance
 
 Properties:
   adminAccountName:

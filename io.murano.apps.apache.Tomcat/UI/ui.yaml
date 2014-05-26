@@ -8,7 +8,7 @@ Application:
   database: $.appConfiguration.database
   instance:
     ?:
-      type: io.murano.resources.Instance
+      type: io.murano.resources.LinuxMuranoInstance
     name: generateHostname($.appConfiguration.unitNamingPattern, 1)
     flavor: $.instanceConfiguration.flavor
     image: $.instanceConfiguration.osImage
