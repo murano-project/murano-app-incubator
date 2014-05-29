@@ -4,9 +4,6 @@ Application:
   ?:
     type: io.murano.apps.PostgreSql
   name: $.appConfiguration.name
-  database: $.appConfiguration.database
-  username: $.appConfiguration.username
-  password: $.appConfiguration.password
   instance:
     ?:
       type: io.murano.resources.LinuxMuranoInstance
@@ -21,25 +18,10 @@ Forms:
         - name: name
           type: string
           label: Application Name
+          initial: PostgreDB
           description: >-
             Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
             underline are allowed
-        - name: database
-          type: string
-          label: Database
-          description: >-
-            Please, provide database name that is going to be created
-        - name: username
-          type: string
-          label: Username
-          description: >-
-            Please, provide username that is going to be used to connect to the database
-        - name: password
-          type: password
-          label: Password
-          descriptionTitle: Password
-          description: >-
-            Please, provide password that is going to be used to connect to the database
         - name: assignFloatingIP
           type: boolean
           label: Assign Floating IP
@@ -49,10 +31,6 @@ Forms:
           required: false
           widgetMedia:
             css: {all: ['muranodashboard/css/checkbox.css']}
-        - name: dcInstances
-          type: integer
-          hidden: true
-          initial: 1
         - name: unitNamingPattern
           type: string
           required: false
