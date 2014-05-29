@@ -17,12 +17,6 @@ Properties:
   instance:
     Contract: $.class(res:Instance).notNull()
 
-  repository:
-    Contract: $.string().notNull()
-
-  database:
-    Contract: $.class(apps:PostgreSql).notNull()
-
 Workflow:
   initialize:
     Body:
@@ -30,38 +24,28 @@ Workflow:
 
   deploy:
     Body:
-      - $this.find(std:Environment).reporter.report($this, 'Creating VM for a Tomcat app.')
-      - $securityGroupIngress:
-          - ToPort: 80
-            FromPort: 80
-            IpProtocol: tcp
-            External: True
-          - ToPort: 443
-            FromPort: 443
-            IpProtocol: tcp
-            External: True
-      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
-      - $.instance.deploy()
-      - $resources: new(sys:Resources)
-      # Deploy Apache Tomcat
-      - $template: $resources.yaml('DeployTomcat.template')
-      - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying Apache server')
-      - $.instance.agent.call($template, $resources)
-
-      # Deploy app over Tomcat
-      - $template: $resources.yaml('DeployTomcatApp.template').bind(dict(
-            repository => $.repository
-          ))
-      - $this.find(std:Environment).reporter.report($this, 'Setup Tomcat application.')
-      - $.instance.agent.call($template, $resources)
-      # Configure access to PostgreSql
-      - $this.find(std:Environment).reporter.report($this, 'Configure access to PostgreSql.')
-      - $.database.deploy()
-      - $template: $resources.yaml('ConfigureAccessToPostgreSql.template').bind(dict(
-            database => $.database.database,
-            username => $.database.username,
-            password => $.database.password,
-            host => $.database.instance.ipAddresses[0]
-          ))
-      - $.instance.agent.call($template, $resources)
-      - $this.find(std:Environment).reporter.report($this, 'Tomcat application is installed')
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $this.find(std:Environment).reporter.report($this, 'Creating VM for Tomcat ')
+          - $securityGroupIngress:
+              - ToPort: 80
+                FromPort: 80
+                IpProtocol: tcp
+                External: True
+              - ToPort: 8080
+                FromPort: 8080
+                IpProtocol: tcp
+                External: True
+              - ToPort: 443
+                FromPort: 443
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          # Deploy Apache Tomcat
+          - $template: $resources.yaml('DeployTomcat.template')
+          - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying Tomcat')
+          - $.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, 'Tomcat is installed')
+          - $.setAttr(deployed, True)

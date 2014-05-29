@@ -4,12 +4,10 @@ Application:
   ?:
     type: io.murano.apps.apache.Tomcat
   name: $.appConfiguration.name
-  repository: $.appConfiguration.repository
-  database: $.appConfiguration.database
   instance:
     ?:
       type: io.murano.resources.LinuxMuranoInstance
-    name: generateHostname($.appConfiguration.unitNamingPattern, 1)
+    name: generateHostname($.instanceConfiguration.unitNamingPattern, 1)
     flavor: $.instanceConfiguration.flavor
     image: $.instanceConfiguration.osImage
     assignFloatingIp: $.appConfiguration.assignFloatingIP
@@ -20,20 +18,10 @@ Forms:
         - name: name
           type: string
           label: Application Name
+          initial: Tomcat
           description: >-
             Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
             underline are allowed
-        - name: database
-          type: io.murano.apps.PostgreSql
-        - name: repository
-          type: string
-          label: Git repository
-          description: >-
-            An URL of a git repository with the application you want to deploy.
-          regexpValidator: '/(\w+://)(.+@)*([\w\d\.]+)(:[\d]+)?/*(.*)/i'
-          errorMessages:
-            invalid: Enter a correct git repository URL
-          helpText: Enter a valid git repository URL
         - name: assignFloatingIP
           type: boolean
           label: Assign Floating IP
@@ -43,17 +31,6 @@ Forms:
           required: false
           widgetMedia:
             css: {all: ['muranodashboard/css/checkbox.css']}
-        - name: dcInstances
-          type: integer
-          hidden: true
-          initial: 1
-        - name: unitNamingPattern
-          type: string
-          required: false
-          hidden: true
-          widgetMedia:
-            js: ['muranodashboard/js/support_placeholder.js']
-            css: {all: ['muranodashboard/css/support_placeholder.css']}
   - instanceConfiguration:
       fields:
         - name: title
@@ -87,3 +64,10 @@ Forms:
           label: Availability zone
           description: Select availability zone where the application would be installed.
           required: false
+        - name: unitNamingPattern
+          label: Hostname
+          type: string
+          required: false
+          widgetMedia:
+            js: ['muranodashboard/js/support_placeholder.js']
+            css: {all: ['muranodashboard/css/support_placeholder.css']}

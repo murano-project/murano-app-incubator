@@ -7,9 +7,10 @@ Parameters:
   username: $username
   password: $password
   host: $host
+  dir: $dir
 
 Body: |
-  return configure('{0} {1} {2} {3}'.format(args.database, args.username, args.password, args.host)).stdout
+  return configure('{0} {1} {2} {3} {4}'.format(args.database, args.username, args.password, args.host, args.dir)).stdout
 
 Scripts:
   configure:

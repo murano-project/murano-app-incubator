@@ -1,0 +1,66 @@
+Namespaces:
+  =: io.murano.apps.java
+  std: io.murano
+  sys: io.murano.system
+  apps: io.murano.apps
+  tc: io.murano.apps.apache
+
+Name: HelloWorld
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+  tomcat:
+    Contract: $.class(tc:Tomcat).notNull()
+  repository:
+    Contract: $.string().notNull()
+  dir:
+    Contract: $.string().notNull()
+  database:
+    Contract: $.class(apps:PostgreSql).notNull()
+  dbName:
+    Contract: $.string().notNull()
+  dbUser:
+    Contract: $.string().notNull()
+  dbPassword:
+    Contract: $.string().notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $this.find(std:Environment).reporter.report($this, 'Ensuring Tomcat is deployed.')
+          - $.tomcat.deploy()
+          - $resources: new(sys:Resources)
+          # Deploy app over Tomcat
+          - $template: $resources.yaml('DeployTomcatApp.template').bind(dict(
+                repository => $.repository,
+                dir => $.dir
+              ))
+          - $this.find(std:Environment).reporter.report($this, 'Setting up the application on Tomcat.')
+          - $.tomcat.instance.agent.call($template, $resources)
+          # Configure access to PostgreSql
+          - $this.find(std:Environment).reporter.report($this, 'Ensuring Database is deployed.')
+          - $.database.createDatabase($.dbName, $.dbUser, $.dbPassword)
+          - $this.find(std:Environment).reporter.report($this, 'Configure access to PostgreSql.')
+          - $template: $resources.yaml('ConfigureAccessToPostgreSql.template').bind(dict(
+                database => $.dbName,
+                username => $.dbUser,
+                password => $.dbPassword,
+                host => $.database.instance.ipAddresses[0],
+                dir => $.dir
+              ))
+          - $.tomcat.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, 'Application is installed')
+          - If: $.tomcat.instance.assignFloatingIp
+            Then:
+              - $ep: $.tomcat.instance.floatingIpAddress + ':8080/' + $.dir
+              - $this.find(std:Environment).reporter.report($this, 'Running at http://' + $ep)
+          - $.setAttr(deployed, True)

@@ -4,9 +4,10 @@ Name: Deploy App over Tomcat
 
 Parameters:
   repository: $repository
+  dir: $dir
 
 Body: |
-  return installApp(args.repository).stdout
+  return installApp('{0} {1}'.format(args.repository, args.dir)).stdout
 
 Scripts:
   installApp:

@@ -1,0 +1,70 @@
+Version: 2
+
+Application:
+  ?:
+    type: io.murano.apps.java.HelloWorld
+  name: $.appConfiguration.name
+  repository: $.appConfiguration.repository
+  dir: $.appConfiguration.dir
+  database: $.appConfiguration.database
+  tomcat: $.appConfiguration.tomcat
+  dbName: $.dbConfiguration.database
+  dbUser: $.dbConfiguration.username
+  dbPassword: $.dbConfiguration.password
+
+Forms:
+  - appConfiguration:
+      fields:
+        - name: name
+          type: string
+          label: Application Name
+          initial: 'Hello-World'
+          description: >-
+            Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
+            underline are allowed
+        - name: dir
+          type: string
+          label: Directory Name
+          description: >-
+            A directory at the web server to which the application will be installed
+          initial: hello_world
+        - name: database
+          type: io.murano.apps.PostgreSql
+          label: Database Server
+          description: >-
+            Select a database server to host the application's database
+        - name: tomcat
+          type: io.murano.apps.apache.Tomcat
+          label: Servlet Container
+          description: >-
+            Select an instance of Java servlet contaniner to run the app
+        - name: repository
+          type: string
+          initial: https://github.com/ativelkov/hello-world-servlet.git
+          hidden: true
+  - dbConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          descriptionTitle: Database Configuration
+          description: Specify the properties of the database which will be created at the selected DB Server
+        - name: database
+          type: string
+          label: Database name
+          initial: hello_db
+          description: >-
+            Please, provide database name that is going to be created
+        - name: username
+          type: string
+          initial: hello_user
+          label: Username
+          description: >-
+            Please, provide username that is going to be used to connect to the database
+        - name: password
+          type: password
+          label: Password
+          descriptionTitle: Password
+          description: >-
+            Please, provide password that is going to be used to connect to the database
