@@ -2,7 +2,7 @@ Format: 1.0
 
 Type: Application
 
-FullName: io.murano.windows.ActiveDirectory
+FullName: io.murano.windows.activeDirectory.ActiveDirectory
 
 Name: Active Directory
 
