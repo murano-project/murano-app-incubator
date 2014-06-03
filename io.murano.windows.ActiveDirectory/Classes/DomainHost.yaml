@@ -14,6 +14,7 @@ Workflow:
   deploy:
     Arguments:
     Body:
+      - $.domain.deploy()
       - $.super($.deploy())
       #- $.joinDomain($.domain)
       # Workaround against broken ResourceManager:
