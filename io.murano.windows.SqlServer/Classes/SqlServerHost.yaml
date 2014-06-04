@@ -8,9 +8,6 @@ Namespaces:
 Name: SqlServerHost
 
 
-Extends: win:DomainHost
-
-
 Properties:
   saPassword:
     Contract: $.string()
@@ -24,11 +21,14 @@ Properties:
     Contract: $.bool()
     Default: false
 
+  instance:
+    Contract: $.class(win:Host).notNull()
+
 
 Workflow:
   deploy:
     Body:
-      - $.super($.deploy())
+      - $.instance.deploy()
 
       - $res: new(sys:Resources)
       - $plan: $res.json('InstallSqlServer.json').bind(dict(
@@ -36,4 +36,4 @@ Workflow:
             saPassword    => $.saPassword,
             mixedModeAuth => $.mixedModeAuth
           ))
-      - $.agent.call($plan, $res)
+      - $.instance.agent.call($plan, $res)

@@ -4,25 +4,27 @@ Version: 2
 Templates:
   instance:
     ?:
-      type: io.murano.windows.sqlServer.SqlServerHost
+      type: io.murano.windows.DomainHost
     name: generateHostname($.hostConfig.unitNamingPattern, 1)
     flavor: $.instanceConfig.flavor
     image: $.instanceConfig.osImage
-
     domain: $.hostConfig.domain
     adminPassword: $.hostConfig.adminPassword
     assignFloatingIp: $.hostConfig.assignFloatingIP
 
+  instanceSqlServer:
+    ?:
+      type: io.murano.windows.sqlServer.SqlServerHost
+    instance: $instance
     saPassword: $.serviceConfig.saPassword
     mixedModeAuth: $.serviceConfig.mixedModeAuth
     distShare: $.serviceConfig.distShare
-
 
 Application:
   ?:
     type: io.murano.windows.sqlServer.SqlServer
   name: $.appConfig.name
-  instances: repeat($instance, $.hostConfig.instanceCount)
+  instances: repeat($instanceSqlServer, $.hostConfig.instanceCount)
 
 
 Forms:
