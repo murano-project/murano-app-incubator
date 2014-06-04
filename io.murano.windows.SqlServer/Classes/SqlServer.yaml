@@ -13,7 +13,7 @@ Properties:
   name:
     Contract: $.string().notNull()
 
-  instances:
+  hosts:
     Contract: [$.class(SqlServerHost).notNull()]
 
 
@@ -24,4 +24,4 @@ Workflow:
 
   deploy:
     Body:
-      - $.instances.pselect($.deploy())
+      - $.hosts.pselect($.deploy())
