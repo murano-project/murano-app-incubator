@@ -1,0 +1,27 @@
+Namespaces:
+  =: io.murano.windows.sqlServer
+  std: io.murano
+
+
+Name: SqlServer
+
+
+Extends: std:Application
+
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instances:
+    Contract: [$.class(SqlServerHost).notNull()]
+
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - $.instances.pselect($.deploy())

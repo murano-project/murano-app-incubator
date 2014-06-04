@@ -1,0 +1,39 @@
+Namespaces:
+  =: io.murano.windows.sqlServer
+  std: io.murano
+  sys: io.murano.system
+  win: io.murano.windows
+
+
+Name: SqlServerHost
+
+
+Extends: win:DomainHost
+
+
+Properties:
+  saPassword:
+    Contract: $.string()
+    Default: ''
+
+  distShare:
+    Contract: $.string()
+    Default: ''
+
+  mixedModeAuth:
+    Contract: $.bool()
+    Default: false
+
+
+Workflow:
+  deploy:
+    Body:
+      - $.super($.deploy())
+
+      - $res: new(sys:Resources)
+      - $plan: $res.json('InstallSqlServer.json').bind(dict(
+            setupRoot     => $.distShare,
+            saPassword    => $.saPassword,
+            mixedModeAuth => $.mixedModeAuth
+          ))
+      - $.agent.call($plan, $res)
