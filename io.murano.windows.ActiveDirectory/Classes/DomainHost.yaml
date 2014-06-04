@@ -1,21 +1,34 @@
 Namespaces:
-    =: io.murano.windows
-    ad: io.murano.windows.activeDirectory
+  =: io.murano.windows
+  ad: io.murano.windows.activeDirectory
+
 
 Name: DomainHost
 
+
 Extends: Host
+
 
 Properties:
   domain:
-    Contract: $.class(ad:ActiveDirectory).notNull()
+    Contract: $.class(ad:ActiveDirectory)
+
 
 Workflow:
   deploy:
     Arguments:
     Body:
-      - $.domain.deploy()
+      # If domain object exists, deploy ActiveDirectory first
+      - If: $.domain != null
+        Then:
+          - $.domain.deploy()
+
+      # Deploy this host
       - $.super($.deploy())
-      #- $.joinDomain($.domain)
-      # Workaround against broken ResourceManager:
-      - $.super($.joinDomain($this.domain))
+
+      # If domain object exists, join domain
+      - If: $.domain != null
+        Then:
+          #- $.joinDomain($.domain)
+          # Workaround against broken ResourceManager:
+          - $.super($.joinDomain($this.domain))
