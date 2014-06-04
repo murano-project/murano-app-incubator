@@ -1,0 +1,171 @@
+Version: 2
+
+
+Templates:
+  instance:
+    ?:
+      type: io.murano.windows.sqlServer.SqlServerHost
+    name: generateHostname($.hostConfig.unitNamingPattern, 1)
+    flavor: $.instanceConfig.flavor
+    image: $.instanceConfig.osImage
+
+    domain: $.hostConfig.domain
+    adminPassword: $.hostConfig.adminPassword
+    assignFloatingIp: $.hostConfig.assignFloatingIP
+
+    saPassword: $.serviceConfig.saPassword
+    mixedModeAuth: $.serviceConfig.mixedModeAuth
+    distShare: $.serviceConfig.distShare
+
+
+Application:
+  ?:
+    type: io.murano.windows.sqlServer.SqlServer
+  name: $.appConfig.name
+  instances: repeat($instance, $.hostConfig.instanceCount)
+
+
+Forms:
+  - appConfig:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: >-
+            Microsoft SQL Server is a powerfull RDBMS server.
+            This appication allows to you to deploy several instances of Microsoft SqlServer.
+            These instances could be standalone or domain based.
+            In case of domain-based instances you will be directed to ActiveDirectory application wizard.
+            In ActiveDirectory wizard you could select an existing Active Directory Application, or create a new one.
+
+        - name: name
+          type: string
+          label: Application Name
+          description: >-
+            Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
+            underline are allowed.
+          minLength: 2
+          maxLength: 64
+          regexpValidator: '^[-\w]+$'
+          errorMessages:
+            invalid: Just letters, numbers, underscores and hyphens are allowed.
+          helpText: Just letters, numbers, underscores and hyphens are allowed.
+
+  - hostConfig:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: Provide basic Windows host configuration here.
+
+        - name: domain
+          type: io.murano.windows.activeDirectory.ActiveDirectory
+          required: false
+
+        - name: adminPassword
+          type: password
+          label: Administrator Password
+          description: >-
+            Password for local Administrator account.
+
+        - name: instanceCount
+          type: integer
+          label: Instance Count
+          initial: 1
+
+        - name: unitNamingPattern
+          type: string
+          label: Hostname
+          description: >-
+            For your convenience instance hostname can be specified.
+            Enter a name or leave blank for random name generation.
+          required: false
+          regexpValidator: '^(([a-zA-Z0-9#][a-zA-Z0-9-#]*[a-zA-Z0-9#])\.)*([A-Za-z0-9#]|[A-Za-z0-9#][A-Za-z0-9-#]*[A-Za-z0-9#])$'
+          helpText: Optional field for a machine hostname
+          # temporaryHack
+          widgetMedia:
+            js: ['muranodashboard/js/support_placeholder.js']
+            css: {all: ['muranodashboard/css/support_placeholder.css']}
+
+        - name: assignFloatingIP
+          type: boolean
+          label: Assign Floating IP
+          description: >-
+             Select to true to assign floating IP automatically
+          initial: false
+          required: false
+          widgetMedia:
+            css: {all: ['muranodashboard/css/checkbox.css']}
+
+  - serviceConfig:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: Configure SqlServer related settings here
+
+        - name: mixedModeAuth
+          type: boolean
+          label: Enable mixed-mode authentication
+          initial: false
+          required: false
+          widgetMedia:
+            css: {all: ['muranodashboard/css/checkbox.css']}
+
+        - name: saPassword
+          type: password
+          label: SqlServer 'sa' account password.
+          required: false
+          description: >-
+            Password for SqlServer system administrator account.
+
+        - name: distShare
+          type: string
+          label: Distribution Share
+          required: false
+          description: >-
+            Distribution Share is a shared folder available via SMB/CIFS.
+            This folder stores distribution files required to deploy an application.
+            Provide an URL pointing to the folder where 'setup.exe' file for MsSQL is located.
+            Example: \\<hostname>\<shared folder>\Prerequisites\SQL Server\2012
+
+  - instanceConfig:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: Specify some instance parameters on which the application would be created
+
+        - name: flavor
+          type: flavor
+          label: Instance flavor
+          description: >-
+            Select registered in Openstack flavor. Consider that application performance
+            depends on this parameter.
+          required: false
+
+        - name: osImage
+          type: image
+          imageType: windows
+          label: Instance image
+          description: >-
+            Select valid image for the application. Image should have Murano agent installed and
+            registered in Glance.
+
+        - name: keyPair
+          type: keypair
+          label: Key Pair
+          description: >-
+            Select the Key Pair to control access to instances. You can login to
+            instances using this KeyPair after application deployment
+          required: false
+
+        - name: availabilityZone
+          type: azone
+          label: Availability zone
+          description: Select availability zone where the application would be installed.
+          required: false
