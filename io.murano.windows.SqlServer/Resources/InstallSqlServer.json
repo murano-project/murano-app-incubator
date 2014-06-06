@@ -1,0 +1,25 @@
+{
+  "Scripts": [
+    "ImportCoreFunctions.ps1", 
+    "CommonOptionParser.ps1",
+    "SqlServerOptionParsers.ps1",
+    "SqlServerInstaller.ps1",
+    "Install-SqlServer.ps1",
+    "Alter-FirewallRulesForSql.ps1"
+  ],
+  "Commands": [
+    {
+      "Name": "Install-SqlServer",
+      "Arguments": {
+        "SetupRoot": "$setupRoot",
+        "SAPassword": "$saPassword",
+        "MixedModeAuth": "$mixedModeAuth"
+      }
+    },
+    {
+      "Name": "Enable-SQLExternalAccess",
+      "Arguments": {}
+    }
+  ],
+  "RebootOnCompletion": 0
+}
