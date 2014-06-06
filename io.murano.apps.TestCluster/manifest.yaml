@@ -1,0 +1,11 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.TestCluster
+Name: TestCluster
+Description: |
+ Tests clustering on shared ip
+Author: 'Mirantis, Inc'
+Tags: [Test]
+Classes:
+ io.murano.apps.TestCluster: TestCluster.yaml
+UI: ui.yaml

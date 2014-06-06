@@ -1,0 +1,31 @@
+Namespaces:
+  =: io.murano.apps
+  std: io.murano
+  res: io.murano.resources
+
+Name: TestCluster
+
+Extends: std:Application
+
+Properties:
+  sharedIp1:
+    Contract: $.class(std:SharedIp).notNull()
+
+  sharedIp2:
+    Contract: $.class(std:SharedIp).notNull()
+
+  instances:
+    Contract:
+      - $.class(res:Instance).check($.networks.useEnvironmentNetwork=true)
+
+
+Workflow:
+  deploy:
+    Body:
+      - $reporter: $this.find(std:Environment).reporter
+      - $reporter.report($this, 'Creating Cluster')
+      - $.instances.pselect($.setSharedIps(list($this.sharedIp1, $this.sharedIp2)))
+      - $.instances.pselect($.deploy())
+      - $reporter.report($this, 'Cluster created')
+
+
