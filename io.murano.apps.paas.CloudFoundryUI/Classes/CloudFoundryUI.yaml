@@ -1,0 +1,73 @@
+Namespaces:
+  =: io.murano.apps.paas
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: CloudFoundryUI
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+  cf_instance:
+    Contract: $.class(CloudFoundry).notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $this.find(std:Environment).reporter.report($this, 'Creating VM for CloudFoundry Admin UI')
+          - $securityGroupIngress:
+              - ToPort: 80
+                FromPort: 80
+                IpProtocol: tcp
+                External: True
+              - ToPort: 8070
+                FromPort: 8070
+                IpProtocol: tcp
+                External: True
+              - ToPort: 443
+                FromPort: 443
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          # Deploy CloudFoundry via cf_nise_install
+          - $template: $resources.yaml('DeployCloudFoundryUI.template')
+          - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying CloudFoundry UI')
+          - $.instance.agent.call($template, $resources)
+
+          - $this.find(std:Environment).reporter.report($this, 'Waiting for CloudFoundry PaaS is ready')
+          - $.cf_instance.deploy()
+
+          - $this.find(std:Environment).reporter.report($this, 'Setup CloudFoundry Admin UI')
+
+          - $user: admin
+          - $password: c1oudc0w
+          - $host:  $.cf_instance.instance.ipAddresses[0]
+          - $template: $resources.yaml('setup.template').bind(dict(
+                ip => $host,
+                user => $user,
+                pass => $password
+              ))
+          - $.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, 'CloudFoundry UI is started.')
+          - If: $.instance.assignFloatingIp
+            Then:
+                - $ep: $.instance.floatingIpAddress + ':8070/'
+                - $this.find(std:Environment).reporter.report($this, 'Running at http://' + $ep)
+          - $.setAttr(deployed, True)
