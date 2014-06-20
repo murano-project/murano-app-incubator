@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.paas.CloudFoundryUI
+Name: Cloud Foundry Admin UI
+Description: |
+ Cloud Foundry Admin UI is an opensource UI solution for CloudFoundry.
+Author: 'Mirantis, Inc'
+Tags: [paas]
+Classes:
+ io.murano.apps.paas.CloudFoundryUI: CloudFoundryUI.yaml
