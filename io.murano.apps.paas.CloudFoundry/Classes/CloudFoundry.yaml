@@ -1,0 +1,55 @@
+Namespaces:
+  =: io.murano.apps.paas
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: CloudFoundry
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $this.find(std:Environment).reporter.report($this, 'Creating VM for CloudFoundry ')
+          - $securityGroupIngress:
+              - ToPort: 80
+                FromPort: 80
+                IpProtocol: tcp
+                External: True
+              - ToPort: 8080
+                FromPort: 8080
+                IpProtocol: tcp
+                External: True
+              - ToPort: 443
+                FromPort: 443
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          # Deploy CloudFoundry via cf_nise_install
+          - $template: $resources.yaml('DeployCloudFoundry.template')
+          - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying CloudFoundry PaaS')
+          - $.instance.agent.call($template, $resources)
+          - $template: $resources.yaml('StartCloudFoundry.template')
+          - $this.find(std:Environment).reporter.report($this, 'CloudFoundry is deployed. Start CloudFoundry PaaS')
+          - $result: $.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, 'CloudFoundry is started')
+          - $this.find(std:Environment).reporter.report($this, $result)
+          - $.setAttr(deployed, True)
