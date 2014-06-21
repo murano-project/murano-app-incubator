@@ -14,19 +14,10 @@ include "common.sh"
 
 cd /root
 
-rbenv install 1.9.3-p547
-
 git clone https://github.com/cloudfoundry/warden
 
 cd warden
-
 cd /warden/warden
 bundle install
 bundle exec rake warden:start[config/linux.yml] &> /tmp/warden.log &
-
-
-git clone https://github.com/cloudfoundry/dea_ng
-cd dea_ng
-git submodule update --init
-bundle install
 

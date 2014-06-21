@@ -6,7 +6,7 @@ Namespaces:
   apps: io.murano.apps
 
 
-Name: CloudFoundry
+Name: CloudFoundry.DEAng
 
 Extends: std:Application
 
@@ -17,6 +17,9 @@ Properties:
   instance:
     Contract: $.class(res:Instance).notNull()
 
+  cf_controller:
+    Contract: $.class(CloudFoundry).notNull()
+
 Workflow:
   initialize:
     Body:
@@ -26,7 +29,7 @@ Workflow:
     Body:
       - If: !yaql "not bool($.getAttr(deployed))"
         Then:
-          - $this.find(std:Environment).reporter.report($this, 'Creating VM for CloudFoundry ')
+          - $this.find(std:Environment).reporter.report($this, 'Creating VM for DEA ')
           - $securityGroupIngress:
               - ToPort: 80
                 FromPort: 80
@@ -47,32 +50,28 @@ Workflow:
           # Just add more interactivity to provide status
           # Install Ruby part
           - $template: $resources.yaml('InstallRuby.template')
-          - $this.find(std:Environment).reporter.report($this, '[1/6] Installing Ruby...')
+          - $this.find(std:Environment).reporter.report($this, '[1/3] Installing Ruby...')
           - $.instance.agent.call($template, $resources)
 
-          #Clone base repos
-          - $template: $resources.yaml('CloneRepos.template')
-          - $this.find(std:Environment).reporter.report($this, '[2/6]Cloning git repositories for BOSH and cf-release...')
-          - $.instance.agent.call($template, $resources)
 
-          #Install Environment
-          - $template: $resources.yaml('InstallEnvironment.template')
-          - $this.find(std:Environment).reporter.report($this, '[3/6]Install Environment...')
+          #Install CF release
+          - $template: $resources.yaml('InstallWarden.template')
+          - $this.find(std:Environment).reporter.report($this, '[2/4]Installing Warden ...')
           - $.instance.agent.call($template, $resources)
 
           #Install CF release
-          - $template: $resources.yaml('InstallCFRelease.template')
-          - $this.find(std:Environment).reporter.report($this, '[4/6]Installing cf-release...')
+          - $template: $resources.yaml('InstallDEA.template')
+          - $this.find(std:Environment).reporter.report($this, '[3/4]Installing DEA ...')
           - $.instance.agent.call($template, $resources)
+
+          - $this.find(std:Environment).reporter.report($this, 'Waiting for Controller')
+          - $.cf_controller.deploy()
 
           #Install CF CLI
-          - $template: $resources.yaml('InstallCFcli.template')
-          - $this.find(std:Environment).reporter.report($this, '[5/6]Installing CF CLI...')
+          - $template: $resources.yaml('StartDEA.template').bind(dict(
+                NATS_ip => $.cf_controller.instance.ipAdresses[0]
+              ))
+          - $this.find(std:Environment).reporter.report($this, '[4/4]Configure and Start...')
           - $.instance.agent.call($template, $resources)
-
-          - $template: $resources.yaml('StartCloudFoundry.template')
-          - $this.find(std:Environment).reporter.report($this, '[6/6]Start CloudFoundry services...')
-          - $result: $.instance.agent.call($template, $resources)
-          - $this.find(std:Environment).reporter.report($this, 'CloudFoundry is started')
-          - $this.find(std:Environment).reporter.report($this, $result)
+          - $this.find(std:Environment).reporter.report($this, 'DEA is started')
           - $.setAttr(deployed, True)

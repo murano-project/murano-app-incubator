@@ -14,10 +14,8 @@ include "common.sh"
 
 cd /root
 
-git clone https://github.com/cloudfoundry/warden
+git clone https://github.com/cloudfoundry/dea_ng
 
-cd warden
-cd /warden/warden
+cd dea_ng
+git submodule update --init
 bundle install
-bundle exec rake warden:start[config/linux.yml] &> /tmp/warden.log &
-

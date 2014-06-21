@@ -14,12 +14,15 @@ include "common.sh"
 . ~/.profile
 
 cd /root
-cd cf_nise_installer
 
-bash ./scripts/start.sh > start.log
+NATS_IP=$1
 
-tail start.log | grep Login
+cd dea_ng
 
-#add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8080 -j ACCEPT -m comment --comment "by murano, CloudFoundry"'
+file=config/dea.yml
 
+sed -i.bak "s/127.0.0.1:3456/$NATS_IP/g" $file
+sed -i.bak "s/loggregatorsharedsecret/c1oudc0w/g" $file
+sed -i.bak "s/localhost/$NATS_IP/g" $file
 
+screen -d -m bin/dea config/dea.yml

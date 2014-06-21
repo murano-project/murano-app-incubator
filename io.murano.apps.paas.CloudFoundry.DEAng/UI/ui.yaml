@@ -2,8 +2,9 @@ Version: 2
 
 Application:
   ?:
-    type: io.murano.apps.paas.CloudFoundry
+    type: io.murano.apps.paas.CloudFoundry.DEAng
   name: $.appConfiguration.name
+  cf_controller: $.appConfiguration.controller
   instance:
     ?:
       type: io.murano.resources.LinuxMuranoInstance
@@ -18,10 +19,15 @@ Forms:
         - name: name
           type: string
           label: Application Name
-          initial: CF
+          initial: DEA
           description: >-
             Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
             underline are allowed
+        - name: controller
+          type: io.murano.apps.paas.CloudFoundry
+          label: CF Controller
+          description: >-
+            Cloudfoundry Controller service
         - name: assignFloatingIP
           type: boolean
           label: Assign Floating IP

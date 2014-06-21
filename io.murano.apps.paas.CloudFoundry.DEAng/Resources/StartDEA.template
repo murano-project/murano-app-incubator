@@ -1,18 +1,18 @@
 FormatVersion: 2.0.0
 Version: 1.0.0
-Name: Start CloudFoundry
+Name: Start DEA
 
 Parameters:
-  appName: $appName
+  NATS_ip: $NATS_ip
 
 Body: |
-  return deploy(args.appName).stdout
+  return deploy(args.NATS_ip).stdout
 
 Scripts:
   deploy:
     Type: Application
     Version: 1.0.0
-    EntryPoint: startCloudFoundry.sh
+    EntryPoint: startDEA.sh
     Files:
       - <common.sh>
     Options:
