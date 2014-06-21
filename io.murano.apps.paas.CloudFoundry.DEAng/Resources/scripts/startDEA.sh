@@ -11,22 +11,14 @@ function include(){
     fi
 }
 include "common.sh"
-
-bash installer.sh -p sys -i "curl git"
+. ~/.profile
 
 cd /root
-log "DEBUG: cloning cf_nise_installer"
-git clone https://github.com/yudai/cf_nise_installer
-
 cd cf_nise_installer
 
-log "DEBUG: running bootstrap.sh"
-bash ./scripts/install.sh > install.log
+bash ./scripts/start.sh > start.log
 
-wget https://s3.amazonaws.com/go-cli/releases/v6.1.2/cf-cli_amd64.deb
-
-dpkg --install cf-cli_amd64.deb
-
+tail start.log | grep Login
 
 #add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8080 -j ACCEPT -m comment --comment "by murano, CloudFoundry"'
 

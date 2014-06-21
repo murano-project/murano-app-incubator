@@ -1,0 +1,78 @@
+Namespaces:
+  =: io.murano.apps.paas
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: CloudFoundry
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $this.find(std:Environment).reporter.report($this, 'Creating VM for CloudFoundry ')
+          - $securityGroupIngress:
+              - ToPort: 80
+                FromPort: 80
+                IpProtocol: tcp
+                External: True
+              - ToPort: 65535
+                FromPort: 1024
+                IpProtocol: tcp
+                External: True
+              - ToPort: 443
+                FromPort: 443
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          #All steps below actually follow the process in ./scripts/install.sh
+          # Just add more interactivity to provide status
+          # Install Ruby part
+          - $template: $resources.yaml('InstallRuby.template')
+          - $this.find(std:Environment).reporter.report($this, '[1/6] Installing Ruby...')
+          - $.instance.agent.call($template, $resources)
+
+          #Clone base repos
+          - $template: $resources.yaml('CloneRepos.template')
+          - $this.find(std:Environment).reporter.report($this, '[2/6]Cloning git repositories for BOSH and cf-release...')
+          - $.instance.agent.call($template, $resources)
+
+          #Install Environment
+          - $template: $resources.yaml('InstallEnvironment.template')
+          - $this.find(std:Environment).reporter.report($this, '[3/6]Install Environment...')
+          - $.instance.agent.call($template, $resources)
+
+          #Install CF release
+          - $template: $resources.yaml('InstallCFRelease.template')
+          - $this.find(std:Environment).reporter.report($this, '[4/6]Installing cf-release...')
+          - $.instance.agent.call($template, $resources)
+
+          #Install CF CLI
+          - $template: $resources.yaml('InstallCFcli.template')
+          - $this.find(std:Environment).reporter.report($this, '[5/6]Installing CF CLI...')
+          - $.instance.agent.call($template, $resources)
+
+          - $template: $resources.yaml('StartCloudFoundry.template')
+          - $this.find(std:Environment).reporter.report($this, '[6/6]Start CloudFoundry services...')
+          - $result: $.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, 'CloudFoundry is started')
+          - $this.find(std:Environment).reporter.report($this, $result)
+          - $.setAttr(deployed, True)

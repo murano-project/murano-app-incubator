@@ -1,6 +1,6 @@
 FormatVersion: 2.0.0
 Version: 1.0.0
-Name: Deploy CloudFoundry
+Name: Install Warden
 
 Parameters:
   appName: $appName
@@ -12,7 +12,7 @@ Scripts:
   deploy:
     Type: Application
     Version: 1.0.0
-    EntryPoint: deployCloudFoundry.sh
+    EntryPoint: installWarden.sh
     Files:
       - <installer.sh>
       - <common.sh>
