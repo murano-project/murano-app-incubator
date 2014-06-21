@@ -6,5 +6,7 @@ Description: |
  Cloud Foundry is an opensource PaaS solution. This development version uses cf_nise_install.
 Author: 'Mirantis, Inc'
 Tags: [paas]
+Requirements: |
+  Ubuntu 12.04
 Classes:
  io.murano.apps.paas.CloudFoundry: CloudFoundry.yaml

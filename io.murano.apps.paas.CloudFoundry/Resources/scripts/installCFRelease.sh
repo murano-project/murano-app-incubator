@@ -1,5 +1,4 @@
 #!/bin/bash
-
 function include(){
     curr_dir=$(cd $(dirname "$0") && pwd)
     inc_file_path=$curr_dir/$1
@@ -13,13 +12,11 @@ function include(){
 include "common.sh"
 . ~/.profile
 
-cd /root
-cd cf_nise_installer
+log "DEBUG: change dir to cf_nise_installer"
 
-bash ./scripts/start.sh > start.log
+cd /root/cf_nise_installer
 
-tail start.log | grep Login
+log "Debug: Starting cf-release script"
+pwd >> current.log
 
-#add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8080 -j ACCEPT -m comment --comment "by murano, CloudFoundry"'
-
-
+./scripts/install_cf_release.sh >> install.log

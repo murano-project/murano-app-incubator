@@ -1,6 +1,6 @@
 FormatVersion: 2.0.0
 Version: 1.0.0
-Name: Start CloudFoundry
+Name: Clone Repos
 
 Parameters:
   appName: $appName
@@ -12,9 +12,9 @@ Scripts:
   deploy:
     Type: Application
     Version: 1.0.0
-    EntryPoint: startCloudFoundry.sh
+    EntryPoint: cloneRepos.sh
     Files:
       - <common.sh>
     Options:
       captureStdout: true
-      captureStderr: true
+      captureStderr: false

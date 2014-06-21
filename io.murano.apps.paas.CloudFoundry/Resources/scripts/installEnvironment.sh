@@ -11,15 +11,9 @@ function include(){
     fi
 }
 include "common.sh"
-. ~/.profile
 
-cd /root
-cd cf_nise_installer
+cd /root/cf_nise_installer
 
-bash ./scripts/start.sh > start.log
+bash ./scripts/install_environemnt.sh >> install.log
 
-tail start.log | grep Login
-
-#add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8080 -j ACCEPT -m comment --comment "by murano, CloudFoundry"'
-
-
+exit 0

@@ -1,6 +1,6 @@
 FormatVersion: 2.0.0
 Version: 1.0.0
-Name: Start CloudFoundry
+Name: Install Ruby
 
 Parameters:
   appName: $appName
@@ -12,9 +12,10 @@ Scripts:
   deploy:
     Type: Application
     Version: 1.0.0
-    EntryPoint: startCloudFoundry.sh
+    EntryPoint: installRuby.sh
     Files:
+      - <installer.sh>
       - <common.sh>
     Options:
       captureStdout: true
-      captureStderr: true
+      captureStderr: false

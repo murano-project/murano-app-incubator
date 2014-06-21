@@ -11,15 +11,8 @@ function include(){
     fi
 }
 include "common.sh"
-. ~/.profile
 
 cd /root
-cd cf_nise_installer
 
-bash ./scripts/start.sh > start.log
-
-tail start.log | grep Login
-
-#add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8080 -j ACCEPT -m comment --comment "by murano, CloudFoundry"'
-
-
+wget https://s3.amazonaws.com/go-cli/releases/v6.1.2/cf-cli_amd64.deb
+dpkg --install cf-cli_amd64.deb

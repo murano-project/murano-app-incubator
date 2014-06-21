@@ -11,15 +11,12 @@ function include(){
     fi
 }
 include "common.sh"
-. ~/.profile
 
+bash installer.sh -p sys -i "curl git wget"
 cd /root
-cd cf_nise_installer
 
-bash ./scripts/start.sh > start.log
+git clone https://github.com/yudai/cf_nise_installer.git
 
-tail start.log | grep Login
+cd /root/cf_nise_installer
 
-#add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8080 -j ACCEPT -m comment --comment "by murano, CloudFoundry"'
-
-
+bash ./scripts/install_ruby.sh >> install.log
