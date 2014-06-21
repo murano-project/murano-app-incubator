@@ -1,0 +1,22 @@
+Version: 2
+
+Application:
+  ?:
+    type: io.murano.apps.openstack.MuranoDashboard
+  name: $.appConfiguration.name
+  murano: $.appConfiguration.murano
+
+
+Forms:
+  - appConfiguration:
+      fields:
+        - name: name
+          type: string
+          label: Application Name
+          initial: Dashboard
+          description: >-
+            Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
+            underline are allowed
+        - name: murano
+          type: io.murano.apps.openstack.Murano
+          label: Murano Instance

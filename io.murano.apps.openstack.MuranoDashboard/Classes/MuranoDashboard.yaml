@@ -1,0 +1,41 @@
+Namespaces:
+  =: io.murano.apps.openstack
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: MuranoDashboard
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  murano:
+    Contract: $.class(Murano).notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $resources: new(sys:Resources)
+          - $this.find(std:Environment).reporter.report($this, 'Wait for Murano service available')
+          - $.murano.deploy()
+
+          # Deploy Murano
+
+          - $template: $resources.yaml('SetupMurano.template').bind(dict(
+                keystone_ip => $.murano.iaas_ip
+              ))
+          - $this.find(std:Environment).reporter.report($this, 'Murano is deployed. Start Murano Dashboard')
+          - $.murano.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, 'Murano Dasboard is started')
+          - $.setAttr(deployed, True)

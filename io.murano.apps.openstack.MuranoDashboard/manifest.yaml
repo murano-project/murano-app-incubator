@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.openstack.MuranoDashboard
+Name: OpenStack Murano Dashboard
+Description: |
+ Murano Dashboard for OpenStack to provide App Catalog functions
+Author: 'Mirantis, Inc'
+Tags: [openstack, murano, appcatalog]
+Classes:
+ io.murano.apps.openstack.MuranoDashboard: MuranoDashboard.yaml
