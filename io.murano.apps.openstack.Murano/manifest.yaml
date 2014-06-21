@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.openstack.Murano
+Name: OpenStack Murano Service
+Description: |
+ Murano service for OpenStqck to provide App Catalog functions
+Author: 'Mirantis, Inc'
+Tags: [openstack, murano, appcatalog]
+Classes:
+ io.murano.apps.openstack.Murano: Murano.yaml

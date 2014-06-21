@@ -1,0 +1,85 @@
+Namespaces:
+  =: io.murano.apps.openstack
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: Murano
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+  repo:
+    Contract: $.string().notNull()
+
+  iaas_ip:
+    Contract: $.string().notNull()
+
+  iaas_user:
+    Contract: $.string().notNull()
+
+  iaas_password:
+    Contract: $.string().notNull()
+
+  vhost:
+    Contract: $.string().notNull()
+
+  mq_user:
+    Contract: $.string().notNull()
+
+  mq_password:
+    Contract: $.string().notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $this.find(std:Environment).reporter.report($this, 'Creating VM for Murano Service')
+          - $securityGroupIngress:
+              - ToPort: 80
+                FromPort: 80
+                IpProtocol: tcp
+                External: True
+              - ToPort: 8083
+                FromPort: 8080
+                IpProtocol: tcp
+                External: True
+              - ToPort: 443
+                FromPort: 443
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+
+          # Deploy Murano
+          - $template: $resources.yaml('DeployMurano.template').bind(dict(
+                repo => $.repo
+              ))
+          - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying Murano')
+          - $.instance.agent.call($template, $resources)
+          - $template: $resources.yaml('SetupMurano.template').bind(dict(
+                 iaas_ip => $.iaas_ip,
+                 iaas_user => $.iaas_user,
+                 iaas_password => $.iaas_password,
+                 mq_user => $.mq_user,
+                 mq_password => $.mq_password,
+                 vhost => $.vhost
+              ))
+          - $this.find(std:Environment).reporter.report($this, 'Murano is deployed. Start Murano service')
+          - $.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, 'Murano is started')
+          - $.setAttr(deployed, True)
