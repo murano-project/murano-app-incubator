@@ -1,0 +1,51 @@
+Namespaces:
+  =: io.murano.apps.apache
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: Tomcat
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $this.find(std:Environment).reporter.report($this, 'Creating VM for Tomcat ')
+          - $securityGroupIngress:
+              - ToPort: 80
+                FromPort: 80
+                IpProtocol: tcp
+                External: True
+              - ToPort: 8080
+                FromPort: 8080
+                IpProtocol: tcp
+                External: True
+              - ToPort: 443
+                FromPort: 443
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          # Deploy Apache Tomcat
+          - $template: $resources.yaml('DeployTomcat.template')
+          - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying Tomcat')
+          - $.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, 'Tomcat is installed')
+          - $.setAttr(deployed, True)
