@@ -1,12 +1,12 @@
 Namespaces:
-  =: io.murano.apps.apache
+  =: io.murano.apps.test
   std: io.murano
   res: io.murano.resources
   sys: io.murano.system
   apps: io.murano.apps
 
 
-Name: Tomcat
+Name: SimpleVM
 
 Extends: std:Application
 
@@ -17,6 +17,14 @@ Properties:
   instance:
     Contract: $.class(res:Instance).notNull()
 
+  host:
+    Contract: $.string()
+    Usage: Out
+
+  user:
+    Contract: $.string()
+    Usage: Out
+
 Workflow:
   initialize:
     Body:
@@ -26,26 +34,20 @@ Workflow:
     Body:
       - If: !yaql "not bool($.getAttr(deployed))"
         Then:
-          - $this.find(std:Environment).reporter.report($this, 'Creating VM for Tomcat ')
+          - $this.find(std:Environment).reporter.report($this, 'Creating VM ')
           - $securityGroupIngress:
-              - ToPort: 80
-                FromPort: 80
-                IpProtocol: tcp
-                External: True
-              - ToPort: 8080
-                FromPort: 8080
-                IpProtocol: tcp
-                External: True
-              - ToPort: 443
-                FromPort: 443
+              - ToPort: 22
+                FromPort: 22
                 IpProtocol: tcp
                 External: True
           - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
           - $.instance.deploy()
           - $resources: new(sys:Resources)
           # Deploy Apache Tomcat
-          - $template: $resources.yaml('DeployTomcat.template')
-          - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying Tomcat')
-          - $.instance.agent.call($template, $resources)
-          - $this.find(std:Environment).reporter.report($this, 'Tomcat is installed')
+          #- $template: $resources.yaml('DeployTomcat.template')
+          #- $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying Tomcat')
+          #- $.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, 'Test VM is installed')
+          - $.host: $.instance.ipAddresses[0]
+          - $.user: 'root'
           - $.setAttr(deployed, True)

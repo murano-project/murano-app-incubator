@@ -2,7 +2,7 @@ Version: 2
 
 Application:
   ?:
-    type: io.murano.apps.apache.Tomcat
+    type: io.murano.apps.test.SimpleVM
   name: $.appConfiguration.name
   instance:
     ?:
@@ -11,6 +11,7 @@ Application:
     flavor: $.instanceConfiguration.flavor
     image: $.instanceConfiguration.osImage
     assignFloatingIp: $.appConfiguration.assignFloatingIP
+    keyname: $.instanceConfiguration.keyPair
 
 Forms:
   - appConfiguration:
