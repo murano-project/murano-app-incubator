@@ -28,7 +28,13 @@ sed -i.bak "s/%IAAS_IP%/$1/g" $file
 sed -i.bak "s/%IAAS_USER%/$2/g" $file
 sed -i.bak "s/%IAAS_PASS%/$3/g" $file
 
-murano-manage --config-file $file db-sync
+#murano-manage --config-file $file db-sync
+#somehow we lost these files when install murano
+cp -fr murano/db/migration/* /usr/local/lib/python2.7/dist-packages/murano/db/migration/
+
+rm -f murano.sqlite
+
+murano-db-manage --config-file etc/murano/murano.conf upgrade
 
 screen -d -m murano-api --config-file $file
 

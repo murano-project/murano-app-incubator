@@ -18,9 +18,21 @@ bash installer.sh -p sys -i "nodejs"
 
 cd /root
 
-#git clone https://github.com/openstack/horizon
-wget -q --no-check-certificate https://dl.dropboxusercontent.com/u/486062/horizon-2014.1.dev1.g8d0b69d.tar.gz
+git clone https://github.com/openstack/horizon
 
+cd horizon
+sudo pip install -r requirements.txt
+python setup.py install
+
+cd ..
+
+git clone https://github.com/openstack/horizon
+cd horizon
+python setup.py install
+
+cd ..
+
+wget -q --no-check-certificate https://dl.dropboxusercontent.com/u/486062/horizon-2014.1.dev1.g8d0b69d.tar.gz
 
 tar xzf horizon-2014.1.dev1.g8d0b69d.tar.gz
 cd horizon-2014.1.dev1.g8d0b69d
@@ -34,7 +46,6 @@ cd murano-dashboard
 
 sudo pip install -r requirements.txt
 
-
 file=muranodashboard/local/local_settings.py
 cp -f $curr_dir/settings.py muranodashboard/
 cp -f $curr_dir/local_settings.py muranodashboard/local/
@@ -42,6 +53,11 @@ cp -f $curr_dir/local_settings.py muranodashboard/local/
 sed -i.bak "s/%KEYSTONE_IP%/$1/g" $file
 
 python setup.py install
+
+# New version of django does not work
+# with current horizon
+#pip uninstall django
+#pip install "django==1.5.6"
 
 python manage.py syncdb --noinput
 

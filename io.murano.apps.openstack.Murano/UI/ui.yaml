@@ -33,7 +33,7 @@ Forms:
         - name: repo
           type: string
           label: Murano repository
-          initial: https://github.com/gokrokvertskhov/murano
+          initial: https://github.com/stackforge/murano
         - name: assignFloatingIP
           type: boolean
           label: Assign Floating IP
@@ -60,7 +60,7 @@ Forms:
           - name: pass
             type: string
             label: IaaS Pass
-            initial: swordfish
+            initial: admin
             required: true
 
   - mq:

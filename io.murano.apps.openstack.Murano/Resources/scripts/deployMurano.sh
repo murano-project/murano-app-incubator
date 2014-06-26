@@ -16,6 +16,8 @@ cd /root
 
 sudo apt-get update
 
+apt-get install -y python-dev python-mysqldb libxml2-dev libxslt1-dev libffi-dev python-openssl mysql-client libmysqlclient-dev libpq-dev wget git make gcc python-pip python-setuptools python-lxml python-crypto ntpdate libsqlite3-dev libldap-dev libldap2-dev libsasl2-dev
+
 bash installer.sh -p sys -i "python-pip curl git"
 bash installer.sh -p sys -i "wget git make gcc python-pip python-setuptools python-lxml python-crypto ntpdate"
 bash installer.sh -p sys -i "python-dev python-mysqldb libxml2-dev libxslt1-dev libffi-dev python-openssl mysql-client"
@@ -33,7 +35,6 @@ log "DEBUG: cloning $1"
 git clone $1
 
 cd murano
-git checkout bp/cloudfoundry
 
 
 sudo pip install -r requirements.txt | tee /tmp/muralo-req.log
