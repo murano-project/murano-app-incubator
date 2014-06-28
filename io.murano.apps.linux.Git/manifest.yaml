@@ -1,0 +1,12 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.linux.Git
+Name: Git
+Description: |
+ Simple Git repo hosted on Linux VM.
+Author: 'Mirantis, Inc'
+Tags: [Linux, connection]
+Classes:
+ io.murano.apps.linux.Git: git.yaml
+UI: ui.yaml
+Logo: logo.png

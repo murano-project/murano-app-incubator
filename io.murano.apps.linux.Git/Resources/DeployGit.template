@@ -1,0 +1,22 @@
+FormatVersion: 2.0.0
+Version: 1.0.0
+Name: Deploy Telnet
+
+Parameters:
+  repo: $repo
+
+Body: |
+  return deploy('{0}'.format(args.repo)).stdout
+
+Scripts:
+  deploy:
+    Type: Application
+    Version: 1.0.0
+    EntryPoint: deployGit.sh
+    Files:
+      - <installer.sh>
+      - <git-service>
+      - <common.sh>
+    Options:
+      captureStdout: true
+      captureStderr: false

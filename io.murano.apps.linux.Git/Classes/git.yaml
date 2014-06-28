@@ -1,0 +1,45 @@
+Namespaces:
+  =: io.murano.apps.linux
+  std: io.murano
+  res: io.murano.resources
+
+Name: Git
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  repo:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - $this.find(std:Environment).reporter.report($this, 'Creating VM for Git instace.')
+      - $securityGroupIngress:
+          - ToPort: 9418
+            FromPort: 9418
+            IpProtocol: tcp
+            External: True
+      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+      - $.instance.deploy()
+      - $this.find(std:Environment).reporter.report($this, 'Instance is created. Setup Git service.')
+      - $resources: new('io.murano.system.Resources')
+      - $template: $resources.yaml('DeployGit.template').bind(dict(
+            repo => $.repo
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $this.find(std:Environment).reporter.report($this, 'Git service setup is done.')
+      - $this.find(std:Environment).reporter.report($this, 'Git repo git://{0}/{1}'.format($.instance.floatingIpAddress,$.repo))
+
+
