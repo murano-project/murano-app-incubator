@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.mongodb.MongoReplicationSet
+Name: MongoDB Replication Set
+Description: |
+ MongoDB cluster with replication set configured.
+Author: 'Mirantis, Inc'
+Tags: [mongodb,mongo,nosql,cluster,replication set,replication]
+Classes:
+ io.murano.apps.mongodb.MongoReplicationSet: MongoReplicationSet.yaml
