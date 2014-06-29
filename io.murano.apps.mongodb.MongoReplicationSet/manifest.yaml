@@ -8,3 +8,4 @@ Author: 'Mirantis, Inc'
 Tags: [mongodb,mongo,nosql,cluster,replication set,replication]
 Classes:
  io.murano.apps.mongodb.MongoReplicationSet: MongoReplicationSet.yaml
+ io.murano.apps.mongodb.MongoInstance: MongoInstance.yaml

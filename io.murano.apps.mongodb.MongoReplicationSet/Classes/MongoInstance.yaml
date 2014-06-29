@@ -6,7 +6,7 @@ Namespaces:
   apps: io.murano.apps
 
 
-Name: MongoReplicationSet
+Name: MongoInstance
 
 Extends: std:Application
 
@@ -17,9 +17,8 @@ Properties:
   repset:
     Contract: $.string().notNull()
 
-  instances:
-    Contract:
-    - $.class(res:Instance).check($.networks.useEnvironmentNetwork=true)
+  instance:
+    Contract: $.class(res:Instance).notNull()
 
 Workflow:
   initialize:
@@ -42,24 +41,14 @@ Workflow:
                 External: True
           - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
           - $log.report($this,'Creating VMs')
-          - $.instances.pselect($.deploy())
+          - $.instance.deploy()
           - $log.report($this,'Installing MongoDB')
           - $resources: new(sys:Resources)
-          - $ips: ' '
-          - For: inst
-            In: $.instances
-            Do:
-                - $template: $resources.yaml('DeployMongo.template').bind(dict(
-                      repset => $.repset
-                    ))
-                - $ips: $ips+' '+$inst.ipAddresses[0]
-                - $inst.agent.call($template, $resources)
 
-          - $log.report($this, 'Instances:{0}'.format($ips))
-          - $template: $resources.yaml('SetupRS.template').bind(dict(
-                  ips => $ips
-                ))
-          - $log.report($this, 'Setup Replication Set')
-          - $.instances[0].agent.call($template, $resources)
-          - $log.report($this,'Installation is complete')
+          - $template: $resources.yaml('DeployMongo.template').bind(dict(
+                repset => $.repset
+              ))
+          - $.instance.agent.call($template, $resources)
+
+          - $log.report($this,'MongoDB instance installation is complete')
           - $.setAttr(deployed, True)

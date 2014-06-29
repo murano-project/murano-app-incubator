@@ -19,7 +19,7 @@ Properties:
 
   instances:
     Contract:
-    - $.class(res:Instance).check($.networks.useEnvironmentNetwork=true)
+    - $.class(MongoInstance)
 
 Workflow:
   initialize:
@@ -31,24 +31,21 @@ Workflow:
       - If: !yaql "not bool($.getAttr(deployed))"
         Then:
           - $log: $this.find(std:Environment).reporter
-          - $securityGroupIngress:
-              - ToPort: 27017
-                FromPort: 27017
-                IpProtocol: tcp
-                External: True
-              - ToPort: 28017
-                FromPort: 28017
-                IpProtocol: tcp
-                External: True
-          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
           - $log.report($this,'Creating VMs')
           - $.instances.pselect($.deploy())
           - $log.report($this,'Installing MongoDB')
           - $resources: new(sys:Resources)
+          - $ips: ' '
+          - For: inst
+            In: $.instances
+            Do:
+                - $ips: $ips+' '+$inst.ipAddresses[0]
 
-          - $template: $resources.yaml('DeployMongo.template').bind(dict(
-              repset => $.repset
-             ))
-          - $.instances.pselect($.agent.call($template, $resources))
+          - $log.report($this, 'Instances:{0}'.format($ips))
+          - $template: $resources.yaml('SetupRS.template').bind(dict(
+                  ips => $ips
+                ))
+          - $log.report($this, 'Setup Replication Set')
+          - $.instances[0].instance.agent.call($template, $resources)
           - $log.report($this,'Installation is complete')
           - $.setAttr(deployed, True)

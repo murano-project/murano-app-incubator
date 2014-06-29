@@ -1,12 +1,17 @@
 Version: 2
 Templates:
-  instance:
+  MuranoInstance:
     ?:
-      type: io.murano.resources.LinuxMuranoInstance
-    name: generateHostname($.appConfiguration.unitNamingPattern, $index)
-    flavor: $.instanceConfiguration.flavor
-    image: $.instanceConfiguration.osImage
-    assignFloatingIp: False
+      type: io.murano.apps.mongodb.MongoInstance
+    name: 'Mongodb'
+    repset: $.appConfiguration.repset
+    instance:
+        ?:
+          type: io.murano.resources.LinuxMuranoInstance
+        name: generateHostname($.appConfiguration.unitNamingPattern, $index)
+        flavor: $.instanceConfiguration.flavor
+        image: $.instanceConfiguration.osImage
+        assignFloatingIp: False
 
 
 Application:
@@ -14,7 +19,7 @@ Application:
     type: io.murano.apps.mongodb.MongoReplicationSet
   name: $.appConfiguration.name
   repset: $.appConfiguration.repset
-  instances: repeat($instance, $.appConfiguration.numInstances)
+  instances: repeat($MuranoInstance, $.appConfiguration.numInstances)
 
 Forms:
   - appConfiguration:
