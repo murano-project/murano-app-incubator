@@ -4,6 +4,8 @@ Application:
   ?:
     type: io.murano.apps.openstack.MuranoDashboard
   name: $.appConfiguration.name
+  repo: $.appConfiguration.repo
+  branch: $.appConfiguration.branch
   murano: $.appConfiguration.murano
 
 
@@ -17,6 +19,14 @@ Forms:
           description: >-
             Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
             underline are allowed
+        - name: repo
+          type: string
+          label: Murano Dashboard repository
+          initial: https://github.com/stackforge/murano-dashboard
+        - name: branch
+          type: string
+          label: Branch to checkout
+          initial: master
         - name: murano
           type: io.murano.apps.openstack.Murano
           label: Murano Instance

@@ -4,9 +4,10 @@ Name: Deploy CloudFoundry
 
 Parameters:
   repo: $repo
+  branch: $branch
 
 Body: |
-  return deploy('{0}'.format(args.repo)).stdout
+  return deploy('{0} {1}'.format(args.repo, args.branch)).stdout
 
 Scripts:
   deploy:

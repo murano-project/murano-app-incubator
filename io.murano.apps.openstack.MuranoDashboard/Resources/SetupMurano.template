@@ -4,9 +4,11 @@ Name: Start CloudFoundry
 
 Parameters:
   keystone_ip: $keystone_ip
+  repo: $repo
+  branch: $branch
 
 Body: |
-  return deploy('{0}'.format(args.keystone_ip)).stdout
+  return deploy('{0} {1} {2}'.format(args.keystone_ip, args.repo, args.branch)).stdout
 
 Scripts:
   deploy:

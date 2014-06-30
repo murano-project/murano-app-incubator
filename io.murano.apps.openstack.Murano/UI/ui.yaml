@@ -5,6 +5,7 @@ Application:
     type: io.murano.apps.openstack.Murano
   name: $.appConfiguration.name
   repo: $.appConfiguration.repo
+  branch: $.appConfiguration.branch
   iaas_ip: $.iaas.ip
   iaas_user: $.iaas.user
   iaas_password: $.iaas.pass
@@ -34,6 +35,10 @@ Forms:
           type: string
           label: Murano repository
           initial: https://github.com/stackforge/murano
+        - name: branch
+          type: string
+          label: Branch name to checkout
+          initial: master
         - name: assignFloatingIP
           type: boolean
           label: Assign Floating IP

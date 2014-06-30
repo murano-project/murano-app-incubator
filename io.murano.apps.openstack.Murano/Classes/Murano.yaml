@@ -20,6 +20,9 @@ Properties:
   repo:
     Contract: $.string().notNull()
 
+  branch:
+    Contract: $.string().notNull()
+
   iaas_ip:
     Contract: $.string().notNull()
 
@@ -67,7 +70,8 @@ Workflow:
 
           # Deploy Murano
           - $template: $resources.yaml('DeployMurano.template').bind(dict(
-                repo => $.repo
+                repo => $.repo,
+                branch => $.branch
               ))
           - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying Murano')
           - $.instance.agent.call($template, $resources)

@@ -36,6 +36,9 @@ git clone $1
 
 cd murano
 
+log "DEBUG: switch branch to $2"
+git checkout $2
+
 
 sudo pip install -r requirements.txt | tee /tmp/muralo-req.log
 sudo pip install --upgrade 'setuptools>=0.8'

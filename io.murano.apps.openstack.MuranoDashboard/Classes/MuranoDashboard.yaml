@@ -14,6 +14,12 @@ Properties:
   name:
     Contract: $.string().notNull()
 
+  repo:
+    Contract: $.string().notNull()
+
+  branch:
+    Contract: $.string().notNull()
+
   murano:
     Contract: $.class(Murano).notNull()
 
@@ -33,7 +39,9 @@ Workflow:
           # Deploy Murano
 
           - $template: $resources.yaml('SetupMurano.template').bind(dict(
-                keystone_ip => $.murano.iaas_ip
+                keystone_ip => $.murano.iaas_ip,
+                repo => $.repo,
+                branch => $.branch
               ))
           - $this.find(std:Environment).reporter.report($this, 'Murano is deployed. Start Murano Dashboard')
           - $.murano.instance.agent.call($template, $resources)

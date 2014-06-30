@@ -41,8 +41,9 @@ sudo python setup.py install
 
 cd ..
 
-git clone https://github.com/stackforge/murano-dashboard
+git clone $2
 cd murano-dashboard
+git checkout $3
 
 sudo pip install -r requirements.txt
 
