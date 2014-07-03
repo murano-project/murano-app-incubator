@@ -1,0 +1,194 @@
+Version: 2
+
+
+Templates:
+  instance:
+    ?:
+      type: io.murano.resources.WindowsInstance
+    name: generateHostname($.appConfiguration.unitNamingPattern, 1)
+    flavor: $.instanceConfiguration.flavor
+    image: $.instanceConfiguration.osImage
+    assignFloatingIp: $.appConfiguration.assignFloatingIP
+
+
+Application:
+  ?:
+    type: io.murano.windows.SqlServer
+  name: $.appConfiguration.name
+  instance: $instance
+
+
+Forms:
+  - appConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: Sql Server is a powerfull DBMS from Microsoft.
+
+        - name: name
+          type: string
+          label: Application Name
+          description: >-
+            Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
+            underline are allowed.
+          minLength: 2
+          maxLength: 64
+          regexpValidator: '^[-\w]+$'
+          errorMessages:
+            invalid: Just letters, numbers, underscores and hyphens are allowed.
+          helpText: Just letters, numbers, underscores and hyphens are allowed.
+
+        - name: assignFloatingIP
+          type: boolean
+          label: Assign Floating IP
+          description: >-
+             Select to true to assign floating IP automatically
+          initial: false
+          required: false
+          widgetMedia:
+            css: {all: ['muranodashboard/css/checkbox.css']}
+
+        - name: unitNamingPattern
+          type: string
+          label: Hostname
+          description: >-
+            For your convenience instance hostname can be specified.
+            Enter a name or leave blank for random name generation.
+          required: false
+          regexpValidator: '^(([a-zA-Z0-9#][a-zA-Z0-9-#]*[a-zA-Z0-9#])\.)*([A-Za-z0-9#]|[A-Za-z0-9#][A-Za-z0-9-#]*[A-Za-z0-9#])$'
+          helpText: Optional field for a machine hostname
+          # temporaryHack
+          widgetMedia:
+            js: ['muranodashboard/js/support_placeholder.js']
+            css: {all: ['muranodashboard/css/support_placeholder.css']}
+
+  - sqlServerConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: >-
+            Configure database server.
+
+        - name: mixedModeAuth
+          type: boolean
+          label: Mixed-mode authentication
+          initial: false
+          # temporaryHack
+          widgetMedia:
+            js: [muranodashboard/js/mixed-mode.js]
+            css: {all: ['muranodashboard/css/checkbox.css']}
+
+        - name: saPassword
+          type: password
+          label: SA Password
+          description: >-
+            Password for 'sa' database account.
+          #enabled: {YAQL: $.sqlServerConfiguration.mixedModeAuth}
+
+        - name: enableDomainMember
+          type: boolean
+          label: Enable installation on domain member.
+          initial: false
+          # temporaryHack
+          widgetMedia:
+            js: [muranodashboard/js/mixed-mode.js]
+            css: {all: ['muranodashboard/css/checkbox.css']}
+
+        - name: enableFailoverCluster
+          type: boolean
+          label: Enable installation on failover cluster.
+          initial: false
+          # temporaryHack
+          widgetMedia:
+            js: [muranodashboard/js/mixed-mode.js]
+            css: {all: ['muranodashboard/css/checkbox.css']}
+          #enabled: {YAQL: $.sqlServerConfiguration.enableDomainMember}
+
+#        - name: domain
+#          label: Microsoft ActiveDirectory Domain
+#          type: io.murano.windows.activeDirectory.ActiveDirectory
+#          enabled: {YAQL: $.sqlServerConfiguration.enableDomainMember and not $.sqlServerConfiguration.enableFailoverCluster}
+
+#        - name: cluster
+#          label: Microsoft Failover Cluster
+#          type: io.murano.windows.FailoverCluster
+#          enabled: {YAQL: $.sqlServerConfiguration.enableFailoverCluster and $.sqlServerConfiguration.enableFailoverCluster}
+
+  - aoagConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: >-
+            MsSQL server could be installed on top of Microsoft Failover Cluster.
+            Here you could set up such configuration.
+
+        - name: enableAlwaysOn
+          label: Enable AlwaysOn Availability Group
+          type: boolean
+          initial: false
+          description: >-
+            Enable AlwaysOn Availability Group
+          # temporaryHack
+          widgetMedia:
+            js: [muranodashboard/js/mixed-mode.js]
+            css: {all: ['muranodashboard/css/checkbox.css']}
+
+        - name: aoagGroupName
+          type: string
+          label: Availability Group Name
+          #enabled: {YAQL: $.aoagConfiguration.enableAlwaysOn}
+
+        - name: aoagListenerName
+          type: string
+          label: AlwaysOn Availability Group Listener Name
+          #enabled: {YAQL: $.aoagConfiguration.enableAlwaysOn}
+
+        - name: aoagListenerIP
+          type: string
+          label: AlwaysOn Availability Group Listener IP
+          #enabled: {YAQL: $.aoagConfiguration.enableAlwaysOn}
+
+  - instanceConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: >-
+            Specify some instance parameters on which the application would be created.
+
+        - name: flavor
+          type: flavor
+          label: Instance flavor
+          description: >-
+            Select registered in Openstack flavor. Consider that application performance
+            depends on this parameter.
+          required: false
+
+        - name: osImage
+          type: image
+          imageType: windows
+          label: Instance image
+          description: >-
+            Select valid image for the application. Image should have Murano agent installed and
+            registered in Glance.
+
+        - name: keyPair
+          type: keypair
+          label: Key Pair
+          description: >-
+            Select the Key Pair to control access to instances. You can login to
+            instances using this KeyPair after application deployment
+          required: false
+
+        - name: availabilityZone
+          type: azone
+          label: Availability zone
+          description: Select availability zone where the application would be installed.
+          required: false

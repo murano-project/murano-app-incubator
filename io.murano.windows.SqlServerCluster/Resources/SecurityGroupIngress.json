@@ -1,0 +1,14 @@
+[
+       {
+        "IpProtocol": "tcp",
+        "FromPort": "1",
+        "ToPort": "65535",
+        "External": false
+    },
+    {
+        "IpProtocol": "udp",
+        "FromPort": "1",
+        "ToPort": "65535",
+        "External": false
+    }
+]

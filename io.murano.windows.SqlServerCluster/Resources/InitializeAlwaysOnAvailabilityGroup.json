@@ -1,0 +1,19 @@
+{
+  "Scripts": [
+    "ImportCoreFunctions.ps1",
+    "SqlServerInstaller.ps1",
+    "StartPowerShellProcess.ps1",
+    "SqlServerAlwaysOnAvailabilityGroup.ps1"
+  ],
+  "Commands": [
+    {
+      "Name": "Initialize-AlwaysOnAvailabilityGroup",
+      "Arguments": {
+        "PrimaryNode":                "$primaryNode",
+        "DomainName":                 "$domainName",
+        "DomainAdminAccountName":     "$domainAdminAccountName",
+        "DomainAdminAccountPassword": "$domainAdminAccountPassword"
+      }
+    }
+  ]
+}

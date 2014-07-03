@@ -1,0 +1,13 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.windows.SqlServerCluster
+Name: Microsoft(R) SQL Server(R) Cluster
+Description: |
+ Sql Server Cluster deployed on top of Failover Cluster provides an HA SQL solution.
+Author: 'Mirantis, Inc'
+Tags: ['Microsoft Services', 'Databases', 'MsSQL', 'SqlServer']
+Classes:
+ io.murano.windows.sqlServerCluster.SqlServerAOAG: SqlServerAOAG.yaml
+ io.murano.windows.sqlServerCluster.SqlServerCluster: SqlServerCluster.yaml
+ io.murano.windows.sqlServerCluster.SqlServerClusterApp: SqlServerClusterApp.yaml
+ io.murano.windows.sqlServerCluster.SqlServerClusterNode: SqlServerClusterNode.yaml

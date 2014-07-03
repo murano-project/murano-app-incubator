@@ -1,0 +1,20 @@
+{
+  "Scripts": [
+    "ImportCoreFunctions.ps1",
+    "StartPowerShellProcess.ps1",
+    "SqlServerInstaller.ps1",
+    "SqlServerAlwaysOnAvailabilityGroup.ps1"
+  ],
+  "Commands": [
+    {
+      "Name": "Initialize-AOAGSecondaryReplica",
+      "Arguments": {
+        "UserName":     "$domainAdminAccountName",
+        "UserPassword": "$domainAdminAccountPassword",
+        "NodeList":     "$nodeList",
+        "PrimaryNode":  "$primaryNode",
+        "DomainName":   "$domainName"
+      }
+    }
+  ]
+}

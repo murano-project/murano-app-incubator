@@ -1,0 +1,23 @@
+Namespaces:
+  =: io.murano.windows.sqlServerCluster
+  std: io.murano
+
+
+Name: SqlServerClusterApp
+
+
+Extends: std:Application
+
+
+Properties:
+  name:
+    Contract: $.string()
+
+  sqlServerCluster:
+    Contract: $.class(SqlServerCluster).notNull()
+
+
+Workflow:
+  deploy:
+    Body:
+      - $.sqlServerCluster.deploy()

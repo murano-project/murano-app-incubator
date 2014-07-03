@@ -1,0 +1,72 @@
+Namespaces:
+  =: io.murano.windows.sqlServerCluster
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  msfc: io.murano.windows.failoverCluster
+
+
+Name: SqlServerCluster
+
+
+Extends: msfc:FailoverCluster
+
+
+Properties:
+  agListenerIp:
+    Contract: $.class(std:SharedIp).notNull()
+    Usage: InOut
+
+  agListenerName:
+    Contract: $.string().notNull()
+    Usage: InOut
+
+  agGroupName:
+    Contract: $.string().notNull()
+    Usage: InOut
+
+  databaseList:
+    Contract: [$.string().notNull()]
+    Usage: InOut
+
+  primaryNode:
+    Contract: $.class(SqlServerClusterNode)
+    Usage: Out
+
+
+Workflow:
+  deploy:
+    Body:
+      - $res: new(sys:Resources)
+      - $env: $.find(std:Environment).require()
+
+      - $.primaryNode: $.nodes[0]
+
+      # Modify SecurityGroup rules
+      - $securityGroupIngress: $res.json('SecurityGroupIngress.json')
+      - $env.securityGroupManager.addGroupIngress($securityGroupIngress)
+
+      # Add SharedIp BEFORE calling deploy!
+      - $.addFailoverClusterSharedIp($this.agListenerIp)
+
+      # Deploy Failover Cluster
+      - $.super($.deploy())
+
+      # Print ListenerIP
+      - $env.reporter.report($this, format('AgListenerIp {0}', $.agListenerIp.virtualIp))
+
+      # Deploy Sql Server on top of FailoverCluster
+      - $.nodes.pselect($.deploySqlServerAlwaysOn())
+
+      # Create shared folder on primaryNode
+      - $plan: $res.json('NewSharedFolderForAOAG.json')
+      - $.primaryNode.host.agent.call($plan, $res)
+
+      # Initialize AlwaysOn AvailabilityGroup
+      - $.nodes.pselect($.initializeAOAG($this))
+
+      # Initialize Primary Replica
+      - $.nodes.pselect($.initializeAOAGPrimaryReplica($this))
+
+      # Initialize Secondary Replica
+      - $.nodes.pselect($.initializeAOAGSecondaryReplica($this))
