@@ -1,0 +1,20 @@
+Namespaces:
+  =: io.murano.windows.sqlServer
+  std: io.murano
+
+
+Name: SqlServerMultiNode
+
+
+Properties:
+  name:
+    Contract: $.string()
+
+  nodes:
+    Contract: [$.class(SqlServer).notNull()]
+
+
+Workflow:
+  deploy:
+    Body:
+      - $.nodes.pselect($.deploy)
