@@ -30,23 +30,25 @@ Workflow:
     Body:
       - $.environment: $.find(std:Environment).require()
       - $.resources: new(sys:Resources)
-      - $.setAttr(isDeployed, false)
+      - $.setAttr(domainDeployed, false)
 
   deploy:
     Body:
-      - If: $.getAttr(isDeployed, false)
+      - If: $.getAttr(domainDeployed, false)
         Then:
           - Return:
 
       - $securityGroupIngress: $.resources.json('DomainSecurity.json')
       - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+
       - $.primaryController.deploy()
       - $.secondaryControllers.pselect($.deploy())
-      - $.setAttr(isDeployed, true)
+
+      - $.setAttr(domainDeployed, true)
       - $.reportDeployed(title => 'MS Active Directory',
                          unitCount => len(secondaryControllers) + 1)
 
   destroy:
     Body:
       - $.reportDestroyed()
-      - $.setAttr(isDeployed, false)
+      - $.setAttr(domainDeployed, false)
