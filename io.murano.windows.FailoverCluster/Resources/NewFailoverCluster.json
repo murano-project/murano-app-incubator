@@ -1,0 +1,16 @@
+{
+  "Scripts": [
+    "ImportCoreFunctions.ps1",
+    "Failover-Cluster.ps1"
+  ],
+  "Commands": [
+    {
+      "Name": "New-FailoverCluster",
+      "Arguments": {
+        "ClusterName":   "$clusterName",
+        "StaticAddress": "$clusterIp"
+      }
+    }
+  ],
+  "RebootOnCompletion": 0
+}

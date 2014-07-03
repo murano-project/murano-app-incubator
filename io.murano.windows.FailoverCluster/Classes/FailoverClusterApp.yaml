@@ -1,0 +1,20 @@
+Namespaces:
+  =: io.murano.windows.failoverCluster
+  std: io.murano
+
+
+Name: FailoverClusterApp
+
+
+Extends: std:Application
+
+
+Properties:
+  failoverCluster:
+    Contract: $.class(FailoverCluster).notNull()
+
+
+Workflow:
+  deploy:
+    Body:
+      - $.cluster.deploy()

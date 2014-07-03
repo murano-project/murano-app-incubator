@@ -1,0 +1,12 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.windows.failoverCluster.FailoverCluster
+Name: Microsoft(R) Failover Cluster
+Description: |
+ Microsoft Failover Cluster provides HA paltform for your services and applications.
+Author: 'Mirantis, Inc'
+Tags: ['Microsoft Services']
+Classes:
+ io.murano.windows.failoverCluster.FailoverClusterApp: FailoverClusterApp.yaml
+ io.murano.windows.failoverCluster.FailoverCluster: FailoverCluster.yaml
+ io.murano.windows.failoverCluster.ClusterNode: ClusterNode.yaml

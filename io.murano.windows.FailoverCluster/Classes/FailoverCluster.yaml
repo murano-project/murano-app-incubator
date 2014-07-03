@@ -1,0 +1,79 @@
+Namespaces:
+  =: io.murano.windows.failoverCluster
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+
+
+Name: FailoverCluster
+
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  nodes:
+    Contract: [$.class(ClusterNode).notNull(), 2]
+    Usage: InOut
+
+  masterNode:
+    Contract: $.class(ClusterNode)
+    Usage: Out
+
+  managementIp:
+    Contract: $.class(std:SharedIp).notNull()
+    Usage: InOut
+
+  sharedIpList:
+    Contract:
+      - $.class(std:SharedIp)
+    Usage: Out
+
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+      - $.resources: new(sys:Resources)
+
+  deploy:
+    Body:
+      # Modify SecurityGroup rules
+      - $securityGroupIngress: $.resources.json('SecurityGroupIngress.json')
+      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+
+      # Add Management IP to the list of shared ips
+      - $.addFailoverClusterSharedIp($this.managementIp)
+
+      # Allocate SharedIps first.
+      - $.nodes.pselect($.host.setSharedIps($this.sharedIpList))
+
+      # Deploy cluster nodes.
+      # FailoverCluster prerequisistes will be deployed automatically.
+      - $.nodes.pselect($.deploy())
+
+      # Report ManagementIp's value
+      - $.environment.reporter.report($this, format('ManagementIp {0}', $.managementIp.virtualIp))
+
+      # Will use first node as 'master' node.
+      - $.masterNode: $.nodes[0]
+
+      # Create FailoverCluster using 'master' node.
+      - $res: new(sys:Resources)
+      - $plan: $res.json('NewFailoverCluster.json').bind(dict(
+            clusterName => $.name,
+            clusterIp   => $.managementIp.virtualIp
+          ))
+      - $.masterNode.host.agent.call($plan, $res)
+
+      # Join all nodes to FailoverCluster.
+      # It's safe to call this function even for nodes already joined.
+      - $.nodes.pselect($.joinFailoverCluster())
+
+  addFailoverClusterSharedIp:
+    Arguments:
+      newSharedIp:
+        Contract:
+          - $.class(std:SharedIp).notNull()
+    Body:
+      - $this.sharedIpList: $newSharedIp + $this.sharedIpList

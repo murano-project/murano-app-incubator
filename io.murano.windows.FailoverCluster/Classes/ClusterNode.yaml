@@ -1,0 +1,48 @@
+Namespaces:
+  =: io.murano.windows.failoverCluster
+  std: io.murano
+  sys: io.murano.system
+  win: io.murano.windows
+
+
+Name: ClusterNode
+
+
+Properties:
+  host:
+    Contract: $.class(win:DomainHost).notNull()
+
+
+Workflow:
+  initialize:
+    Body:
+      - $.cluster: $.find(FailoverCluster).require()
+
+  deploy:
+    Body:
+      - $.host.deploy()
+
+      # Deploy FailoverCluster prerequisites only once.
+      - If: $.getAttr(prerequisitesDeployed, false)
+        Then:
+        - Return:
+
+      # Install FailoverCluster prerequisites.
+      - $res: new(sys:Resources)
+      - $plan: $res.json('FailoverClusterPrerequisites.json').bind(dict(
+            domainName                  => $.host.domain.name,
+            domainAdminAccountName      => $.host.domain.adminAccountName,
+            domainAdminAccountPassword  => $.host.domain.adminPassword
+          ))
+      - $.host.agent.call($plan, $res)
+
+      - $.setAttr(prerequisitesDeployed, true)
+
+  joinFailoverCluster:
+    Body:
+      - $res: new(sys:Resources)
+      - $plan: $res.json('AddFailoverClusterNode.json').bind(dict(
+            clusterName => $.cluster.name,
+            nodeName    => $.host.name
+          ))
+      - $.host.agent.call($plan, $res)
