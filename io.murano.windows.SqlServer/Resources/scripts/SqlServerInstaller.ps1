@@ -62,7 +62,18 @@ function New-SQLServer {
     Resolve-SQLServerPrerequisites
 
     $parser = New-OptionParserInstall
-    $ExitCode = $parser.ExecuteBinary($SetupExe.FullName, @{"Q" = $null; "FEATURES" = @("SQLEngine", "Conn", "SSMS", "ADV_SSMS") + $ExtraFeatures} + $ExtraOptions)
+    $ExitCode = $parser.ExecuteBinary(
+        $SetupExe.FullName,
+        @{
+            "Q" = $null;
+            "FEATURES" = @(
+                "SQLEngine",
+                "Conn",
+                "SSMS",
+                "ADV_SSMS"
+            ) + $ExtraFeatures
+        } + $ExtraOptions
+    )
 
     if ($ExitCode -eq 3010) {
         return $true
@@ -131,10 +142,32 @@ function New-SQLServerForAOAG {
     Resolve-SQLServerPrerequisites
 
     $parser = New-OptionParserInstall
-    $ExitCode = $parser.ExecuteBinary($SetupExe.FullName, @{"Q" = $null; "FEATURES" = @("SQLEngine", "Conn", "SSMS", "ADV_SSMS", "DREPLAY_CTLR", "DREPLAY_CLT") + $ExtraFeatures;
-        "AGTSVCACCOUNT" = $SQLUser; "AGTSVCPASSWORD" = $SQLSvcUsrPassword; "ASSVCACCOUNT" = $SQLUser; "ASSVCPASSWORD" = $SQLSvcUsrPassword; "ASSYSADMINACCOUNTS" = $SQLUSer;
-        "SQLSVCACCOUNT" = $SQLUser; "SQLSVCPASSWORD" = $SQLSvcUsrPassword; "SQLSYSADMINACCOUNTS" = $SQLUser; "ISSVCACCOUNT" = $SQLUser; "ISSVCPASSWORD" = $SQLSvcUsrPassword; 
-        "RSSVCACCOUNT" = $SQLUser; "RSSVCPASSWORD" = $SQLSvcUsrPassword} + $ExtraOptions)
+    $ExitCode = $parser.ExecuteBinary(
+        $SetupExe.FullName,
+        @{
+            "Q" = $null;
+            "FEATURES" = @(
+                "SQLEngine",
+                "Conn",
+                "SSMS",
+                "ADV_SSMS",
+                "DREPLAY_CTLR",
+                "DREPLAY_CLT"
+            ) + $ExtraFeatures;
+            "AGTSVCACCOUNT" = $SQLUser;
+            "AGTSVCPASSWORD" = $SQLSvcUsrPassword;
+            "ASSVCACCOUNT" = $SQLUser;
+            "ASSVCPASSWORD" = $SQLSvcUsrPassword;
+            "ASSYSADMINACCOUNTS" = $SQLUSer;
+            "SQLSVCACCOUNT" = $SQLUser;
+            "SQLSVCPASSWORD" = $SQLSvcUsrPassword;
+            "SQLSYSADMINACCOUNTS" = $SQLUser;
+            "ISSVCACCOUNT" = $SQLUser;
+            "ISSVCPASSWORD" = $SQLSvcUsrPassword;
+            "RSSVCACCOUNT" = $SQLUser;
+            "RSSVCPASSWORD" = $SQLSvcUsrPassword
+        } + $ExtraOptions
+    )
 
     if ($ExitCode -eq 3010) {
         return $true
@@ -172,7 +205,18 @@ function Remove-SQLServer {
     $SetupExe = $SetupDir.GetFiles("setup.exe")[0]
 
     $parser = New-OptionParserUninstall
-    $ExitCode = $parser.ExecuteBinary($SetupExe.FullName, @{"Q" = $null; "FEATURES" = @("SQLEngine", "Conn", "SSMS", "ADV_SSMS") + $ExtraFeatures})
+    $ExitCode = $parser.ExecuteBinary(
+        $SetupExe.FullName,
+        @{
+            "Q" = $null;
+            "FEATURES" = @(
+                "SQLEngine",
+                "Conn",
+                "SSMS",
+                "ADV_SSMS"
+            ) + $ExtraFeatures
+        }
+    )
 
     if ($ExitCode -ne 0) {
         throw "Installation executable exited with code $("{0:X8}" -f $ExitCode)"
@@ -236,7 +280,13 @@ function Install-SQLServerForSysPrep {
     Resolve-SQLServerPrerequisites
 
     $parser = New-OptionParserPrepareImage
-    $ExitCode = $parser.ExecuteBinary($SetupExe.FullName, @{"QS" = $null; "FEATURES" = @("SQLEngine") + $ExtraFeatures })
+    $ExitCode = $parser.ExecuteBinary(
+        $SetupExe.FullName,
+        @{
+            "QS" = $null;
+            "FEATURES" = @("SQLEngine") + $ExtraFeatures
+        }
+    )
 
     if ($ExitCode -eq 3010) {
         return $true
@@ -536,7 +586,7 @@ function Initialize-MirroringEndpoint {
 
         SELECT 'port:(' + CONVERT(VARCHAR, `@port) + ')' as port
         GO
-        "
+    "
 
     $rawdata = Invoke-SQLText -SQL $CreateMasterKey
     [int]$Port = $rawdata -replace '.*port:\(([^)]*)\).*', '$1'
@@ -619,7 +669,7 @@ function Complete-MirroringEndpoint {
         DECLARE `@name VARCHAR(255)
         SELECT TOP 1 `@name = name FROM sys.endpoints WHERE type_desc='DATABASE_MIRRORING'
         SELECT 'name:(' + `@name + ')' as name
-        "
+    "
 
     $rawdata = Invoke-SQLText -SQL $SQL
     $EndpointName = $rawdata -replace '.*name:\(([^)]*)\).*', '$1'
@@ -650,7 +700,7 @@ function Complete-SQLMirror {
     $AlterDb = "
         ALTER DATABASE $(ConvertTo-SQLName $DataBaseName) SET PARTNER = $(ConvertTo-SQLString $Url);
         GO
-        "
+    "
     [void](Invoke-SQLText -SQL $AlterDb)
 }
 
@@ -705,7 +755,7 @@ function New-SQLDatabase {
         GO
         IF NOT EXISTS (SELECT name FROM sys.filegroups WHERE is_default=1 AND name = N'PRIMARY') ALTER DATABASE $(ConvertTo-SQLName $DataBaseName) MODIFY FILEGROUP [PRIMARY] DEFAULT
         GO
-        "
+    "
 
     [void](Invoke-SQLText -SQL $NewDatabase)
 }
@@ -754,12 +804,12 @@ function Initialize-SQLMirroringPrincipalStep1 {
     $BackupDb = "
         BACKUP DATABASE $(ConvertTo-SQLName $DataBaseName) TO DISK = N$(ConvertTo-SQLString "$WorkDir\Source.bak") WITH NOFORMAT, INIT, NAME = N'Full Database Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10
         GO
-        "
+    "
     [void](Invoke-SQLText -SQL $BackupDb)
     $BackupLog = "
         BACKUP LOG $(ConvertTo-SQLName $DataBaseName) TO DISK = N$(ConvertTo-SQLString "$WorkDir\Source_log.bak") WITH NOFORMAT, INIT,  NAME = N'Transaction Log  Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10
         GO
-        "
+    "
     [void](Invoke-SQLText -SQL $BackupLog)
 }
 
@@ -901,12 +951,12 @@ function Initialize-SQLMirroringMirrorStep2 {
     $RestoreDb = "
         RESTORE DATABASE $(ConvertTo-SQLName $DataBaseName) FROM DISK = N$(ConvertTo-SQLString "$RemoteWorkDir\Source.bak") WITH FILE = 1, NORECOVERY, NOUNLOAD, REPLACE, STATS = 5
         GO
-        "
+    "
     [void](Invoke-SQLText -SQL $RestoreDb)
     $RestoreLog = "
         RESTORE LOG $(ConvertTo-SQLName $DataBaseName) FROM DISK = N$(ConvertTo-SQLString "$RemoteWorkDir\Source_log.bak") WITH FILE = 1, NORECOVERY, NOUNLOAD, STATS = 10
         GO
-        "
+    "
     [void](Invoke-SQLText -SQL $RestoreLog)
 }
 
@@ -1236,7 +1286,7 @@ function New-AlwaysOnAvailabilityGroup {
             FOR DATABASE $QuotedDBNames
             REPLICA ON`r`n $ReplicaDefinitions
             $Listener;
-        "
+    "
     [void](Invoke-SQLText -SQL $SQL)
     return $Port
 }
@@ -1266,7 +1316,7 @@ function New-AlwaysOnAvailabilityGroupReplica {
     $JoinGroup = "
         ALTER AVAILABILITY GROUP $(ConvertTo-SQLName $GroupName) JOIN
         GO
-        "
+    "
     [void](Invoke-SQLText -SQL $JoinGroup)
 
     for ($i = 0; ; $i++) {
@@ -1278,17 +1328,17 @@ function New-AlwaysOnAvailabilityGroupReplica {
         $RestoreDb = "
             RESTORE DATABASE $(ConvertTo-SQLName $DataBaseName) FROM DISK = N$(ConvertTo-SQLString "$WorkDir\db$i.bak") WITH FILE = 1, NORECOVERY, NOUNLOAD, REPLACE, STATS = 5
             GO
-            "
+        "
         [void](Invoke-SQLText -SQL $RestoreDb)
         $RestoreLog = "
             RESTORE LOG $(ConvertTo-SQLName $DataBaseName) FROM DISK = N$(ConvertTo-SQLString "$WorkDir\db$i.log.bak") WITH FILE = 1, NORECOVERY, NOUNLOAD, STATS = 10
             GO
-            "
+        "
         [void](Invoke-SQLText -SQL $RestoreLog)
         $AlterDB = "
             ALTER DATABASE $(ConvertTo-SQLName $DataBaseName) SET HADR AVAILABILITY GROUP = $(ConvertTo-SQLName $GroupName)
             GO
-            "
+        "
         [void](Invoke-SQLText -SQL $AlterDB)
     }
 }
