@@ -24,4 +24,10 @@ Workflow:
 
   deploy:
     Body:
+      - $securityGroupIngress:
+        - ToPort: 1433
+          FromPort: 1433
+          IpProtocol: tcp
+          External: True
+      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
       - $.hosts.pselect($.deploy())
