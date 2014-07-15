@@ -11,6 +11,7 @@ Application:
     name: generateHostname($.instanceConfigurationUI.unitNamingPattern, 1)
     flavor: $.instanceConfigurationUI.flavor
     image: $.instanceConfigurationUI.osImage
+    keyname: $.instanceConfiguration.keyPair
     assignFloatingIp: $.appConfiguration.assignFloatingIP
 
 

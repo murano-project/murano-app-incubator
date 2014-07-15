@@ -8,6 +8,7 @@ Templates:
     name: generateHostname($.hostConfig.unitNamingPattern, 1)
     flavor: $.instanceConfig.flavor
     image: $.instanceConfig.osImage
+    keyname: $.instanceConfig.keyPair
     domain: $.hostConfig.domain
     adminPassword: $.hostConfig.adminPassword
     assignFloatingIp: $.hostConfig.assignFloatingIP

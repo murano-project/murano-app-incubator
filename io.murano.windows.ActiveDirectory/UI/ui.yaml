@@ -12,6 +12,7 @@ Templates:
       name: generateHostname($.serviceConfiguration.unitNamingPattern, 1)
       flavor: $.instanceConfiguration.flavor
       image: $.instanceConfiguration.osImage
+      keyname: $.instanceConfiguration.keyPair
       assignFloatingIp: $.serviceConfiguration.assignFloatingIP
 
   secondaryController:

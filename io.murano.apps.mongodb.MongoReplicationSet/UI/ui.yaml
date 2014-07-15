@@ -11,6 +11,7 @@ Templates:
         name: generateHostname($.appConfiguration.unitNamingPattern, $index)
         flavor: $.instanceConfiguration.flavor
         image: $.instanceConfiguration.osImage
+        keyname: $.instanceConfiguration.keyPair
         assignFloatingIp: False
 
 
