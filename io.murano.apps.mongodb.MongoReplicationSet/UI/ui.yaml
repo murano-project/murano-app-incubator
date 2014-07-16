@@ -1,6 +1,6 @@
 Version: 2
 Templates:
-  MuranoInstance:
+  MongoInstance:
     ?:
       type: io.murano.apps.mongodb.MongoInstance
     name: 'Mongodb'
@@ -20,7 +20,7 @@ Application:
     type: io.murano.apps.mongodb.MongoReplicationSet
   name: $.appConfiguration.name
   repset: $.appConfiguration.repset
-  instances: repeat($MuranoInstance, $.appConfiguration.numInstances)
+  instances: repeat($MongoInstance, $.appConfiguration.numInstances)
 
 Forms:
   - appConfiguration:
@@ -53,6 +53,7 @@ Forms:
         - name: unitNamingPattern
           type: string
           label: Hostname template
+          initial: mongo-0#
           description: >-
             For your convenience all instance hostnames can be named
             in the same way. Enter a name and use # character for incrementation.

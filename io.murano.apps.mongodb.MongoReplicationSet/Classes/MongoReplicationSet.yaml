@@ -28,24 +28,24 @@ Workflow:
 
   deploy:
     Body:
-      - If: !yaql "not bool($.getAttr(deployed))"
+      - If: not $.getAttr(deployed, false)
         Then:
           - $log: $this.find(std:Environment).reporter
           - $log.report($this,'Creating VMs')
           - $.instances.pselect($.deploy())
-          - $log.report($this,'Installing MongoDB')
+          - $log.report($this,'Initializing Replication Set')
           - $resources: new(sys:Resources)
-          - $ips: ' '
-          - For: inst
-            In: $.instances
-            Do:
-                - $ips: $ips+' '+$inst.ipAddresses[0]
+
+          - $ips: (' '.join($this.instances.select($.hostname)))
 
           - $log.report($this, 'Instances:{0}'.format($ips))
+
+          - $.instances.pselect($.updateHosts($ips))
+
           - $template: $resources.yaml('SetupRS.template').bind(dict(
                   ips => $ips
                 ))
-          - $log.report($this, 'Setup Replication Set')
           - $.instances[0].instance.agent.call($template, $resources)
+
           - $log.report($this,'Installation is complete')
           - $.setAttr(deployed, True)

@@ -1,0 +1,18 @@
+FormatVersion: 2.0.0
+Version: 1.0.0
+Name: Get Hostname
+
+Parameters:
+  appName: $appName
+
+Body: |
+  return getHostname(args.appName).stdout
+
+Scripts:
+  getHostname:
+    Type: Application
+    Version: 1.0.0
+    EntryPoint: getHostname.sh
+    Options:
+      captureStdout: true
+      captureStderr: false

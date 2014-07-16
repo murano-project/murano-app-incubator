@@ -1,0 +1,18 @@
+FormatVersion: 2.0.0
+Version: 1.0.0
+Name: Update Hosts file
+
+Parameters:
+  hosts: $hosts
+
+Body: |
+  return updateHosts(args.hosts).stdout
+
+Scripts:
+  updateHosts:
+    Type: Application
+    Version: 1.0.0
+    EntryPoint: updateHosts.sh
+    Options:
+      captureStdout: true
+      captureStderr: false

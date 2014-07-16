@@ -20,6 +20,10 @@ Properties:
   instance:
     Contract: $.class(res:Instance).notNull()
 
+  hostname:
+    Contract: $.string()
+    Usage: Out
+
 Workflow:
   initialize:
     Body:
@@ -40,9 +44,9 @@ Workflow:
                 IpProtocol: tcp
                 External: True
           - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
-          - $log.report($this,'Creating VMs')
+          - $log.report($this,'Creating VM for MongoDB server')
           - $.instance.deploy()
-          - $log.report($this,'Installing MongoDB')
+          - $log.report($this,'Installing MongoDB server')
           - $resources: new(sys:Resources)
 
           - $template: $resources.yaml('DeployMongo.template').bind(dict(
@@ -50,5 +54,22 @@ Workflow:
               ))
           - $.instance.agent.call($template, $resources)
 
+          - $template: $resources.yaml('GetHostname.template')
+          - $hostname: $.instance.agent.call($template, $resources)
+          - $.hostname: $hostname + ':' + $.instance.ipAddresses[0]
+
           - $log.report($this,'MongoDB instance installation is complete')
           - $.setAttr(deployed, True)
+
+
+  updateHosts:
+    Arguments:
+      hosts:
+        Contract: $.string()
+    Body:
+      - $this.find(std:Environment).reporter.report($this, 'Updating hosts file.')
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('UpdateHosts.template').bind(dict(
+              hosts => $hosts
+            ))
+      - $.instance.agent.call($template, $resources)

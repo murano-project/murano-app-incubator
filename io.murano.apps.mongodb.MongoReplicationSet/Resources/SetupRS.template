@@ -14,7 +14,6 @@ Scripts:
     Version: 1.0.0
     EntryPoint: setupRS.sh
     Files:
-      - <installer.sh>
       - <common.sh>
     Options:
       captureStdout: true
