@@ -21,14 +21,10 @@ cd /root
 git clone https://github.com/openstack/horizon
 
 cd horizon
+git checkout stable/icehouse
 sudo pip install -r requirements.txt
 python setup.py install
 
-cd ..
-
-git clone https://github.com/openstack/horizon
-cd horizon
-python setup.py install
 
 cd ..
 
