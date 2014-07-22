@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.RabbitMQ
+Name: RabbitMQ
+Description: |
+ RabbitMQ is a complete and highly reliable enterprise messaging system based on the emerging AMQP standard.
+Author: 'Mirantis, Inc'
+Tags: [AMQP, RabbitMQ]
+Classes:
+ io.murano.apps.RabbitMQ: RabbitMQ.yaml

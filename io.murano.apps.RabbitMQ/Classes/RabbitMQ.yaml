@@ -1,0 +1,45 @@
+Namespaces:
+  =: io.murano.apps.RabbitMQ
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: RabbitMQ
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - $this.find(std:Environment).reporter.report($this, 'Creating VM for RabbitMQ ')
+      - $securityGroupIngress:
+          - ToPort: 5672
+            FromPort: 5672
+            IpProtocol: tcp
+            External: True
+          - ToPort: 15672
+            FromPort: 15672
+            IpProtocol: tcp
+            External: True
+      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+      - $.instance.deploy()
+      - $resources: new(sys:Resources)
+      # Deploy RabbitMQ
+      - $template: $resources.yaml('DeployRabbitMQ.template')
+      - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying RabbitMQ')
+      - $.instance.agent.call($template, $resources)
+      - $this.find(std:Environment).reporter.report($this, 'RabbitMQ is installed')
+      - $.setAttr(deployed, True)
