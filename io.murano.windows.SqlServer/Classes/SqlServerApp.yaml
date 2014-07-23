@@ -1,0 +1,23 @@
+Namespaces:
+  =: io.murano.windows.sqlServer
+  std: io.murano
+
+
+Name: SqlServerApp
+
+
+Extends: std:Application
+
+
+Properties:
+  name:
+    Contract: $.string()
+
+  sqlServer:
+    Contract: $.class(SqlServer).notNull()
+
+
+Workflow:
+  deploy:
+    Body:
+      - $.sqlServer.deploy()
