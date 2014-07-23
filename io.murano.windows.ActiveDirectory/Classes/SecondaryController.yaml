@@ -25,4 +25,3 @@ Workflow:
             domainPassword => $.domain.adminPassword
           ))
       - $.host.agent.call($template, $resources)
-#

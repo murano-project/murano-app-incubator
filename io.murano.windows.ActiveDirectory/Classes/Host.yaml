@@ -25,17 +25,29 @@ Workflow:
     Body:
       - $.super($.deploy())
 
+      # Deploy host only once
+      - If: $.getAttr(hostDeployed, false)
+        Then:
+          - Return:
+
       - $resources: new(sys:Resources)
       - $template: $resources.json('SetPassword.template').bind(dict(
             adminPassword => $.adminPassword
           ))
       - $.agent.send($template, $resources)
 
+      - $.setAttr(hostDeployed, true)
+
   joinDomain:
     Arguments:
       - domain:
           Contract: $.class(ad:ActiveDirectory).notNull()
     Body:
+
+      # Join domain only once
+      - If: $.getAttr(hostIsDomainMember, false)
+        Then:
+          - Return:
 
       - $resources: new(sys:Resources)
       - $template: $resources.json('JoinDomain.template').bind(dict(
@@ -47,3 +59,4 @@ Workflow:
           ))
       - $.agent.call($template, $resources)
 
+      - $.setAttr(hostIsDomainMember, true)
