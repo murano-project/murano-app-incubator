@@ -1,0 +1,21 @@
+{
+  "Scripts": [
+    "ImportCoreFunctions.ps1", 
+    "CommonOptionParser.ps1",
+    "SqlServerOptionParsers.ps1",
+    "SqlServerInstaller.ps1",
+    "Install-SqlServerAlwaysOn.ps1"
+  ],
+  "Commands": [
+    {
+      "Name": "Install-SqlServerForAOAG",
+      "Arguments": {
+        "SetupRoot":              "$setupRoot",
+        "SQLServiceUserDomain":   "$domainName",
+        "SQLServiceUserName":     "$domainAdminAccountName",
+        "SQLServiceUserPassword": "$domainAdminAccountPassword"
+      }
+    }
+  ],
+  "RebootOnCompletion": 0
+}

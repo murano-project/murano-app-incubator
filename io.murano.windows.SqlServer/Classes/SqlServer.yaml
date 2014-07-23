@@ -1,33 +1,42 @@
 Namespaces:
   =: io.murano.windows.sqlServer
   std: io.murano
+  sys: io.murano.system
+  win: io.murano.windows
 
 
 Name: SqlServer
 
 
-Extends: std:Application
-
-
 Properties:
   name:
-    Contract: $.string().notNull()
+    Contract: $.string()
 
-  hosts:
-    Contract: [$.class(SqlServerHost).notNull()]
+  saPassword:
+    Contract: $.string()
+    Default: ''
+
+  distShare:
+    Contract: $.string()
+    Default: ''
+
+  mixedModeAuth:
+    Contract: $.bool()
+    Default: false
+
+  host:
+    Contract: $.class(win:Host).notNull()
 
 
 Workflow:
-  initialize:
-    Body:
-      - $.environment: $.find(std:Environment).require()
-
   deploy:
     Body:
-      - $securityGroupIngress:
-        - ToPort: 1433
-          FromPort: 1433
-          IpProtocol: tcp
-          External: True
-      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
-      - $.hosts.pselect($.deploy())
+      - $.host.deploy()
+
+      - $res: new(sys:Resources)
+      - $plan: $res.json('InstallSqlServer.json').bind(dict(
+            setupRoot     => $.distShare,
+            saPassword    => $.saPassword,
+            mixedModeAuth => $.mixedModeAuth
+          ))
+      - $.host.agent.call($plan, $res)

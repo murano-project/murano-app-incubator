@@ -13,19 +13,21 @@ Templates:
     adminPassword: $.hostConfig.adminPassword
     assignFloatingIp: $.hostConfig.assignFloatingIP
 
-  sqlServerHost:
+  sqlServer:
     ?:
-      type: io.murano.windows.sqlServer.SqlServerHost
+      type: io.murano.windows.sqlServer.SqlServer
+    name: $.appConfig.name
     host: $windowsHost
     saPassword: $.serviceConfig.saPassword
     mixedModeAuth: $.serviceConfig.mixedModeAuth
     distShare: $.serviceConfig.distShare
 
+
 Application:
   ?:
-    type: io.murano.windows.sqlServer.SqlServer
+    type: io.murano.windows.sqlServer.SqlServerApp
   name: $.appConfig.name
-  hosts: repeat($sqlServerHost, $.hostConfig.instanceCount)
+  sqlServer: $sqlServer
 
 
 Forms:
@@ -50,6 +52,7 @@ Forms:
             underline are allowed.
           minLength: 2
           maxLength: 64
+          required: false
           regexpValidator: '^[-\w]+$'
           errorMessages:
             invalid: Just letters, numbers, underscores and hyphens are allowed.
@@ -72,11 +75,6 @@ Forms:
           label: Administrator Password
           description: >-
             Password for local Administrator account.
-
-        - name: instanceCount
-          type: integer
-          label: Instance Count
-          initial: 1
 
         - name: unitNamingPattern
           type: string

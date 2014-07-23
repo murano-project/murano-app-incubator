@@ -1,0 +1,31 @@
+Namespaces:
+  =: io.murano.windows.sqlServer
+  std: io.murano
+  sys: io.murano.system
+  win: io.murano.windows
+
+
+Name: SqlServerAlwaysOn
+
+
+Extends: SqlServer
+
+
+Properties:
+  host:
+    Contract: $.class(win:DomainHost).notNull()
+
+
+Workflow:
+  deploy:
+    Body:
+      - $.host.deploy()
+
+      - $res: new(sys:Resources)
+      - $plan: $res.json('InstallSqlServerAlwaysOn.json').bind(dict(
+            setupRoot                   => $.distShare,
+            domainName                  => $.host.domain.name,
+            domainAdminAccountName      => $.host.domain.adminAccountName,
+            domainAdminAccountPassword  => $.host.domain.adminPassword
+          ))
+      - $.host.agent.call($plan, $res)

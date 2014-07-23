@@ -11,8 +11,8 @@
     {
       "Name": "Install-SqlServer",
       "Arguments": {
-        "SetupRoot": "$setupRoot",
-        "SAPassword": "$saPassword",
+        "SetupRoot":     "$setupRoot",
+        "SAPassword":    "$saPassword",
         "MixedModeAuth": "$mixedModeAuth"
       }
     },
