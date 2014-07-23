@@ -1,0 +1,29 @@
+Namespaces:
+  =: io.murano.windows.sqlServerCluster
+  std: io.murano
+  sys: io.murano.system
+  win: io.murano.windows
+  msfc: io.murano.windows.failoverCluster
+
+
+Name: SqlServerClusterNode
+
+
+Properties:
+  host:
+    Contract: $.class(win:DomainHost).notNull()
+
+
+Extends:
+  - msfc:ClusterNode
+  - SqlServerAOAG
+
+
+Workflow:
+  deploy:
+    Body:
+      - $.cast(msfc:ClusterNode).deploy()
+
+  deploySqlServerAlwaysOn:
+    Body:
+      - $.cast(SqlServerAOAG).deploy()

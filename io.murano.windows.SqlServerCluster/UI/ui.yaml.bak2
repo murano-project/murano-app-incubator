@@ -1,0 +1,92 @@
+Version: 2
+
+
+Application:
+  ?:
+    type: io.murano.windows.sqlServerCluster.SqlServerCluster
+  name: $.appConfig.name
+  nodes: $.serviceConfig.failoverCluster.nodes
+
+
+Forms:
+  - appConfig:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: MS SQL Failover Cluster
+
+        - name: name
+          type: string
+          label: Service Name
+          description: >-
+            Enter a desired name for a service. Just A-Z, a-z, 0-9, dash and
+            underline are allowed.
+          minLength: 2
+          maxLength: 64
+          regexpValidator: '^[-\w]+$'
+          errorMessages:
+            invalid: Just letters, numbers, underscores and hyphens are allowed.
+          helpText: Just letters, numbers, underscores and hyphens are allowed.
+
+  - serviceConfig:
+      fields:
+        - name: failoverCluster
+          type: io.murano.windows.failoverCluster.FailoverCluster
+          label: Underlying Failover Cluster
+          description: >-
+            Failover Cluster which will be used to deploy SqlServer cluster.
+          required: true
+
+        - name: agGroupName
+          type: string
+          label: Availability Group Name
+          helpText: Name of AG during SQL setup
+          regexpValidator: '^[A-Za-z0-9_-]+$'
+          description: >-
+            Specify a name of an AG. Just A-Z, a-z, 0-9, dash and underline are allowed.
+
+        - name: agListenerName
+          type: string
+          label: Availability Group Listener Name
+          helpText: FQDN name of a new DNS entry for AG Listener endpoint
+          regexpValidator: '^[-\w]+$'
+          errorMessages:
+            invalid: Just letters, numbers, underscores and hyphens are allowed.
+          description: >-
+            Specify a name of an AG Listener . Just A-Z, a-z, 0-9, dash and underline are allowed.
+
+        - name: agListenerIP
+          type: string
+          label: Availability Group Listener IP
+          description: Specify a valid IPv4 fixed IP.
+
+        - name: sqlServiceUserName
+          type: string
+          label: SQLSERVER Service Account Name
+          required: false
+          regexpValidator: '^[-\w]+$'
+          errorMessages:
+            invalid: Just letters, numbers, underscores and hyphens are allowed.
+          description: >-
+            User account that will be used to launch SQLSERVER service on instances.
+
+        - name: sqlServicePassword
+          type: password
+          label: SQLSERVER Service Account Password
+          required: false
+          description: >-
+            Password for SQLSERVER service user account.
+
+        - name: databases
+          type: databaselist
+          label: Database list
+          description: >-
+            Specify names for new databases which will be created as part
+            of service installation. Here should come comma-separated list
+            of database names, where each name has the following syntax:
+            first symbol should be latin letter or underscore; subsequent
+            symbols can be latin letter, numeric, underscore, at sign,
+            number sign or dollar sign.
+          helpText: Enter comma separated list of databases that will be created

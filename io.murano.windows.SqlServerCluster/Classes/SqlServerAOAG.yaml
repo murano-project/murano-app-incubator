@@ -1,0 +1,66 @@
+Namespaces:
+  =: io.murano.windows.sqlServerCluster
+  std: io.murano
+  sys: io.murano.system
+  win: io.murano.windows
+  mssql: io.murano.windows.sqlServer
+
+
+Name: SqlServerAOAG
+
+
+Extends: mssql:SqlServerAlwaysOn
+
+
+Workflow:
+  initializeAOAG:
+    Arguments:
+      sqlCluster:
+        Contract: $.class(SqlServerCluster).notNull()
+    Body:
+      #- $sqlCluster: $.find(SqlServerCluster).require()
+      - $res: new(sys:Resources)
+      - $plan: $res.json('InitializeAlwaysOnAvailabilityGroup.json').bind(dict(
+            domainName                  => $.host.domain.name,
+            domainAdminAccountName      => $.host.domain.adminAccountName,
+            domainAdminAccountPassword  => $.host.domain.adminPassword,
+            primaryNode                 => $sqlCluster.primaryNode.host.name
+          ))
+      - $.host.agent.call($plan, $res)
+
+  initializeAOAGPrimaryReplica:
+    Arguments:
+      sqlCluster:
+        Contract: $.class(SqlServerCluster).notNull()
+    Body:
+      #- $sqlCluster: $.find(SqlServerCluster).require()
+      - $res: new(sys:Resources)
+      - $plan: $res.json('InitializeAOAGPrimaryReplica.json').bind(dict(
+            primaryNode                 => $sqlCluster.primaryNode.host.name,
+            nodeList                    => $sqlCluster.nodes.select($.host.name),
+            domainName                  => $.host.domain.name,
+            domainAdminAccountName      => $.host.domain.adminAccountName,
+            domainAdminAccountPassword  => $.host.domain.adminPassword,
+            groupName                   => $sqlCluster.agGroupName,
+            listenerName                => $sqlCluster.agListenerName,
+            syncModeNodeList            => '',
+            databaseList                => $sqlCluster.databaseList,
+            listenerIP                  => $sqlCluster.agListenerIp.virtualIp
+          ))
+      - $.host.agent.call($plan, $res)
+
+  initializeAOAGSecondaryReplica:
+    Arguments:
+      sqlCluster:
+        Contract: $.class(SqlServerCluster).notNull()
+    Body:
+      #- $sqlCluster: $.find(SqlServerCluster).require()
+      - $res: new(sys:Resources)
+      - $plan: $res.json('InitializeAOAGSecondaryReplica.json').bind(dict(
+            primaryNode                 => $sqlCluster.primaryNode.host.name,
+            nodeList                    => $sqlCluster.nodes.select($.host.name),
+            domainName                  => $.host.domain.name,
+            domainAdminAccountName      => $.host.domain.adminAccountName,
+            domainAdminAccountPassword  => $.host.domain.adminPassword
+          ))
+      - $.host.agent.call($plan, $res)

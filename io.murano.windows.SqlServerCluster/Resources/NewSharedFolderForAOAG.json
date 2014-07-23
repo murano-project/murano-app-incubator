@@ -1,0 +1,12 @@
+{
+  "Scripts": [
+    "ImportCoreFunctions.ps1",
+    "SqlServerAlwaysOnAvailabilityGroup.ps1"
+  ],
+  "Commands": [
+    {
+      "Name": "New-SharedFolderForAOAG",
+      "Arguments": {}
+    }
+  ]
+}

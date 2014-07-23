@@ -1,0 +1,29 @@
+{
+  "Scripts": [
+    "ImportCoreFunctions.ps1",
+    "StartPowerShellProcess.ps1",
+    "SqlServerInstaller.ps1",
+    "SqlServerAlwaysOnAvailabilityGroup.ps1"
+  ],
+  "Commands": [
+    {
+      "Name": "Disable-Firewall",
+      "Arguments": {}
+    },
+    {
+      "Name": "Initialize-AOAGPrimaryReplica",
+      "Arguments": {
+        "PrimaryNode":      "$primaryNode",
+        "NodeList":         "$nodeList",
+        "DomainName":       "$domainName",
+        "UserName":         "$domainAdminAccountName",
+        "UserPassword":     "$domainAdminAccountPassword",
+        "GroupName":        "$groupName",
+        "ListenerName":     "$listenerName",
+        "SyncModeNodeList": "$syncModeNodeList",
+        "ListenerIP":       "$listenerIP",
+        "DatabaseList":     "$databaseList"
+      }
+    }
+  ]
+}
