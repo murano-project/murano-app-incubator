@@ -8,4 +8,5 @@ Author: 'Mirantis, Inc'
 Tags: ['Microsoft', 'Database', 'SqlServer']
 Classes:
  io.murano.windows.sqlServer.SqlServer: SqlServer.yaml
- io.murano.windows.sqlServer.SqlServerHost: SqlServerHost.yaml
+ io.murano.windows.sqlServer.SqlServerApp: SqlServerApp.yaml
+ io.murano.windows.sqlServer.SqlServerAlwaysOn: SqlServerAlwaysOn.yaml
