@@ -1,6 +1,6 @@
 FormatVersion: 2.0.0
 Version: 1.0.0
-Name: Start CloudFoundry
+Name: Start Murano Dashboard
 
 Parameters:
   keystone_ip: $keystone_ip
@@ -14,7 +14,7 @@ Scripts:
   deploy:
     Type: Application
     Version: 1.0.0
-    EntryPoint: startMurano.sh
+    EntryPoint: startMuranoDashboard.sh
     Files:
       - <common.sh>
       - <installer.sh>

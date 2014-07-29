@@ -45,7 +45,7 @@ sudo pip install --upgrade 'setuptools>=0.8'
 
 sudo python setup.py install | tee /tmp/murano-install.log
 
-add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8082 -j ACCEPT -m comment --comment "by murano, Murano API"'
-add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8083 -j ACCEPT -m comment --comment "by murano, Murano CF API"'
+#add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8082 -j ACCEPT -m comment --comment "by murano, Murano API"'
+#add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8083 -j ACCEPT -m comment --comment "by murano, Murano CF API"'
 
 
