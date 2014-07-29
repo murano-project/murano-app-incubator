@@ -1,0 +1,90 @@
+Namespaces:
+  =: io.murano.apps.apache
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: TomcatCluster
+
+
+Extends:
+  - io.murano.apps.test.SimpleVMcluster
+  - io.murano.apps.apache.TomcatServletContainer
+
+
+Properties:
+  port:
+    Contract: $.int().notNull()
+    Default: 8080
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(deployed, false)
+        Then:
+          - $.environment.reporter.report($this, '[TomcatCluster]Creating VMs for Tomcat ')
+          - $securityGroupIngress:
+              - ToPort: 80
+                FromPort: 80
+                IpProtocol: tcp
+                External: True
+              - ToPort: 8080
+                FromPort: 8080
+                IpProtocol: tcp
+                External: True
+              - ToPort: 443
+                FromPort: 443
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          # Deploy the underlying cluster of VMs and LB Pool
+          # This will call the deploy method from SimpleVMcluster
+          - $.super($.deploy())
+          - $resources: new(sys:Resources)
+          # Deploy Apache Tomcat on all instances
+          - $template: $resources.yaml('DeployTomcat.template')
+          - $.environment.reporter.report($this, '[TomcatCluster]Deploying Tomcat')
+          - $.instances.pselect($.agent.call($template, $resources))
+          - $.environment.reporter.report($this, '[TomcatCluster]Tomcat is installed')
+          # Set the public_ip as a floating IP of underlying LB
+          - $.public_ip: $.balancer_ip
+          - $.clustered: true
+          - $.setAttr(deployed, true)
+
+  deployApp:
+    Arguments:
+      app:
+        Contract: $.class(std:Application).notNull()
+    Body:
+      - For: instance
+        In: $.instances
+        Do:
+          - $.environment.reporter.report($this, '[TomcatCluster]Deploying application to Tomcat')
+          - $app.deployApp($instance)
+
+  execute:
+    Arguments:
+      template:
+        Contract: {}
+      resources:
+        Contract: $.class(sys:Resources).notNull()
+    Body:
+      - For: instance
+        In: $.instances
+        Do:
+          - $this.find(std:Environment).reporter.report($this, '[TomcatCluster]Deploying application to Tomcat')
+          - $instance.agent.call($template, $resources)
+
+  enableLb:
+    Body:
+        - $this.find(std:Environment).reporter.report($this, '[TomcatCluster] Go online.')
+        - For: instance
+          In: $.instances
+          Do:
+            - $.addToLB($instance.name, $.port)
