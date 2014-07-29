@@ -1,0 +1,22 @@
+FormatVersion: 2.0.0
+Version: 1.0.0
+Name: Deploy App over Tomcat
+
+Parameters:
+  repository: $repository
+  dir: $dir
+
+Body: |
+  return installApp('{0} {1}'.format(args.repository, args.dir)).stdout
+
+Scripts:
+  installApp:
+    Type: Application
+    Version: 1.0.0
+    EntryPoint: deployTomcatApp.sh
+    Files:
+      - <installer.sh>
+      - <common.sh>
+    Options:
+      captureStdout: true
+      captureStderr: false

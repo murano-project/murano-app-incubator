@@ -1,0 +1,80 @@
+Namespaces:
+  =: io.murano.apps.java
+  std: io.murano
+  sys: io.murano.system
+  apps: io.murano.apps
+  res: io.murano.resources
+  tc: io.murano.apps.apache
+
+Name: HelloWorldCluster
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+  tomcat:
+    Contract: $.class(tc:TomcatServletContainer).notNull()
+  repository:
+    Contract: $.string().notNull()
+  dir:
+    Contract: $.string().notNull()
+  database:
+    Contract: $.class(apps:PostgreSql).notNull()
+  dbName:
+    Contract: $.string().notNull()
+  dbUser:
+    Contract: $.string().notNull()
+  dbPassword:
+    Contract: $.string().notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(deployed, false)
+        Then:
+          - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Ensuring Tomcat is deployed.')
+          - $.tomcat.deploy()
+
+          - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Setting up the application on Tomcat.')
+          #- $.tomcat.deployApp($template, $resources)
+          # Configure access to PostgreSql
+          - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Ensuring Database is deployed.')
+          - $.database.createDatabase($.dbName, $.dbUser, $.dbPassword)
+          - $.tomcat.deployApp($this)
+          - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Application is installed')
+          - $.tomcat.enableLb()
+          - If: $.tomcat.clustered
+            Then:
+              - $ep: $.tomcat.public_ip + '/' + $.dir
+            Else:
+              - $ep: $.tomcat.public_ip + ':8080/' + $.dir
+          - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Running at http://' + $ep)
+          - $.setAttr(deployed, true)
+
+  deployApp:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+
+    Body:
+        - $resources: new(sys:Resources)
+        # Deploy app over Tomcat
+        - $template: $resources.yaml('DeployTomcatApp.template').bind(dict(
+              repository => $.repository,
+              dir => $.dir
+            ))
+        - $instance.agent.call($template, $resources)
+        - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Configure access to PostgreSql.')
+        - $template: $resources.yaml('ConfigureAccessToPostgreSql.template').bind(dict(
+             database => $.dbName,
+             username => $.dbUser,
+             password => $.dbPassword,
+             host => $.database.instance.ipAddresses[0],
+             dir => $.dir
+            ))
+        - $instance.agent.call($template, $resources)
