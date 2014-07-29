@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.test.SimpleVMcluster
+Name: SimpleVM Cluster
+Description: |
+ This is a simple test app with VMS behind LB.
+Author: 'Mirantis, Inc'
+Tags: [test]
+Classes:
+ io.murano.apps.test.SimpleVMcluster: SimpleVMcluster.yaml

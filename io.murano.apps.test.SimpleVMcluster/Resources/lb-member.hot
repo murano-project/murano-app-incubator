@@ -1,0 +1,7 @@
+resources:
+    $member:
+        type: OS::Neutron::PoolMember
+        properties:
+          pool_id: {get_resource: $pool_name}
+          address: {get_attr: [$instance, first_address]}
+          protocol_port: $member_port

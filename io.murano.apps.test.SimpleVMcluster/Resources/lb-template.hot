@@ -1,0 +1,27 @@
+resources:
+    $pool_name:
+         type: OS::Neutron::Pool
+         properties:
+           admin_state_up: True
+           lb_method: 'ROUND_ROBIN'
+           name: $pool_name
+           protocol: 'HTTP'
+           subnet_id: {get_resource: $subnet}
+           vip: {"name": "testVIP", "protocol_port": 80}
+
+    $lb_name:
+          type: OS::Neutron::LoadBalancer
+          properties:
+            pool_id: {get_resource: $pool_name}
+            protocol_port: 80
+
+    lb_floating_ip:
+        type: OS::Neutron::FloatingIP
+        properties:
+          floating_network_id: $public_net_id
+          port_id: { "Fn::Select" : [ "port_id", { get_attr: [ $pool_name , vip ] } ] }
+
+
+outputs:
+   LB_VIP:
+     value: { get_attr: [ lb_floating_ip, floating_ip_address ] }

@@ -1,0 +1,83 @@
+Namespaces:
+  =: io.murano.apps.test
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+  net: io.murano.networking
+
+
+Name: SimpleVM
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instances:
+    Contract:
+     - $.class(res:Instance).notNull()
+
+  balancer_ip:
+     Contract: $.string()
+     Usage: Out
+
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(isDeployed, false)
+        Then:
+          - $this.find(std:Environment).reporter.report($this, '[VMCluster]Creating VM ')
+          - $securityGroupIngress:
+              - ToPort: 22
+                FromPort: 22
+                IpProtocol: tcp
+                External: true
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instances.pselect($.deploy())
+          - $resources: new(sys:Resources)
+
+          - $this.find(std:Environment).reporter.report($this, '[VMCluster]VMs are created')
+
+          - $net: $.environment.defaultNetworks.environment
+          - $subnetRef: $net.name + '-subnet-' + $net.id()
+          - $extNetId: $net.getExternalNetId()
+          - $resources: new('io.murano.system.Resources')
+          - $this.find(std:Environment).reporter.report($this, '[VMCluster]Creating LB Pool')
+          - $template: $resources.yaml('lb-template.hot').bind(dict(
+              pool_name => 'testPool',
+              subnet => $subnetRef,
+              lb_name => 'testLB',
+              public_net_id => $extNetId
+             ))
+          - $.environment.stack.updateTemplate($template)
+          - $.environment.stack.push()
+          - $outputs: $.environment.stack.output()
+          - $.balancer_ip: $outputs.get('LB_VIP')
+          - $this.find(std:Environment).reporter.report($this, $ipAddress)
+          - $.setAttr(isDeployed, true)
+
+  addToLB:
+    Arguments:
+      instance_name:
+         Contract: $.string().notNull()
+      port:
+         Contract: $.int().notNull()
+
+    Body:
+      - $resources: new(sys:Resources)
+      - $this.find(std:Environment).reporter.report($this, '[VMCluster]Creating LB Member')
+      - $template: $resources.yaml('lb-member.hot').bind(dict(
+           member => 'lb-mem'.join($instance_name),
+           pool_name => 'testPool',
+           instance => $instance_name,
+           member_port => $port
+          ))
+      - $.environment.stack.updateTemplate($template)
+      - $.environment.stack.push()
