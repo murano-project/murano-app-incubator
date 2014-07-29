@@ -1,0 +1,79 @@
+Namespaces:
+  =: io.murano.apps.apache
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: TomcatSingle
+
+Extends:
+  - io.murano.apps.apache.TomcatServletContainer
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(deployed, false)
+        Then:
+          - $this.find(std:Environment).reporter.report($this, '[Tomcat]Creating VM for Tomcat ')
+          - $securityGroupIngress:
+              - ToPort: 80
+                FromPort: 80
+                IpProtocol: tcp
+                External: True
+              - ToPort: 8080
+                FromPort: 8080
+                IpProtocol: tcp
+                External: True
+              - ToPort: 443
+                FromPort: 443
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          # Deploy Apache Tomcat
+          - $template: $resources.yaml('DeployTomcat.template')
+          - $this.find(std:Environment).reporter.report($this, '[Tomcat]Instance is created. Deploying Tomcat')
+          - $.instance.agent.call($template, $resources)
+          - $this.find(std:Environment).reporter.report($this, '[Tomcat]Tomcat is installed')
+          - If: $.instance.assignFloatingIp
+            Then:
+              - $.public_ip: $.instance.floatingIpAddress
+          - $.clustered: false
+          - $.setAttr(deployed, true)
+
+  deployApp:
+    Arguments:
+      app:
+        Contract: $.class(std:Application).notNull()
+    Body:
+      - $this.find(std:Environment).reporter.report($this, '[Tomcat]Deploying application to Tomcat')
+      - $app.deployApp($.instance)
+
+  execute:
+    Arguments:
+      template:
+        Contract: {}
+      resources:
+        Contract: $.class(sys:Resources).notNull()
+    Body:
+      - $this.find(std:Environment).reporter.report($this, '[Tomcat]Deploying application to Tomcat')
+      - $.instance.agent.call($template, $resources)
+
+  enableLb:
+    Body:
+      - $this.find(std:Environment).reporter.report($this, '[Tomcat] Go online.')

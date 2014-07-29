@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.apache.TomcatSingle
+Name: Apache Tomcat Single Instance
+Description: |
+ Apache Tomcat is an open source software implementation of the Java Servlet and JavaServer Pages technologies.
+Author: 'Mirantis, Inc'
+Tags: [Servlets, Server, Pages, Java]
+Classes:
+ io.murano.apps.apache.TomcatSingle: TomcatSingle.yaml
