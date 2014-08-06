@@ -51,3 +51,9 @@ Workflow:
           - $.host: $.instance.ipAddresses[0]
           - $.user: 'root'
           - $.setAttr(deployed, True)
+
+  restartVM:
+    Usage: Action
+    Description: 'Restart VM with a service'
+    Body:
+    
