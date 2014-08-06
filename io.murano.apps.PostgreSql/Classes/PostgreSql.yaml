@@ -64,12 +64,5 @@ Workflow:
       - $.instance.agent.call($template, $resources)
       - $this.find(std:Environment).reporter.report($this, 'Database configured')
 
-  restartService:
-    Usage: Action
-    Description: Restart PostgreSQL service
-    Body:
-       - $resources: new(sys:Resources)
-       - $.environment.reporter.report($this, 'Restarting PostgreSql Service')
-       - $template: $resources.yaml('RestartService.template')
-       - $out: $.instance.agent.call($template, $resources)
-       - $.environment.reporter.report($this, 'Status: {0}'.format($out))
+
+
