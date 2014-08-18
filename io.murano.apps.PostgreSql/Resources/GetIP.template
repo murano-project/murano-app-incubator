@@ -16,4 +16,4 @@ Scripts:
     Files: []
     Options:
       captureStdout: true
-      captureStderr: false
+      captureStderr: true

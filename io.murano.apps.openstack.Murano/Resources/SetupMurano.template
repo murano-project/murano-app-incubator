@@ -24,4 +24,4 @@ Scripts:
       - <murano.conf>
     Options:
       captureStdout: true
-      captureStderr: false
+      captureStderr: true

@@ -15,4 +15,4 @@ Scripts:
     EntryPoint: updateHosts.sh
     Options:
       captureStdout: true
-      captureStderr: false
+      captureStderr: true

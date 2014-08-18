@@ -19,4 +19,4 @@ Scripts:
       - <common.sh>
     Options:
       captureStdout: false
-      captureStderr: false
+      captureStderr: true
