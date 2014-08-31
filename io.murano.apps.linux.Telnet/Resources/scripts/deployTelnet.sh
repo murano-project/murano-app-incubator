@@ -80,8 +80,8 @@ case ${INIT_SYSTEM} in
     'systemd')
         systemctl enable ${SERVICE_NAME}
         systemctl start ${SERVICE_NAME}
-        # firewall-cmd –permanent –add-service=telnet
-        # firewall-cmd –reload
+        #firewall-cmd --permanent --add-service=telnet
+        #firewall-cmd --reload
     ;;
     *)
         echo "Inititalization system '${INIT_SYSTEM}' is not supported."
