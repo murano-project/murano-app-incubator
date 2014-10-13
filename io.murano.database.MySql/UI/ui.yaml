@@ -2,7 +2,7 @@ Version: 2
 
 Application:
   ?:
-    type: io.murano.apps.PostgreSql
+    type: io.murano.database.MySql
   name: $.appConfiguration.name
   instance:
     ?:
@@ -19,7 +19,7 @@ Forms:
         - name: name
           type: string
           label: Application Name
-          initial: PostgreDB
+          initial: MySqlDB
           description: >-
             Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
             underline are allowed

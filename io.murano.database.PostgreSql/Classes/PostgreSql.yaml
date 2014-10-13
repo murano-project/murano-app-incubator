@@ -1,0 +1,108 @@
+Namespaces:
+  =: io.murano.database
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+
+
+Name: PostgreSql
+
+Extends:
+  - Sql
+  - std:Application
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $.environment.reporter.report($this, 'Creating VM for PostgreSql')
+          - $securityGroupIngress:
+              - ToPort: 5432
+                FromPort: 5432
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          # Deploy PostgreSql
+          - $.environment.reporter.report($this, 'Instance is created. Deploying PostgreSql')
+          - $template: $resources.yaml('DeployPostgreSql.template')
+          - $.instance.agent.call($template, $resources)
+          - $.environment.reporter.report($this, 'PostgreSql application is installed.')
+          - $.setAttr(deployed, True)
+
+  createDatabase:
+    Arguments:
+      - database:
+          Contract: $.string().notNull()
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $.deploy()
+      - $.environment.reporter.report($this, 'Creating ' + $database + ' database.')
+      # Creating Database on PostgreSQL
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('CreatePostgreSqlDatabase.template').bind(dict(
+            database => $database
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $.environment.reporter.report($this, 'Database created')
+
+  createUser:
+    Arguments:
+      - username:
+          Contract: $.string().notNull()
+      - password:
+          Contract: $.string().notNull()
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $.deploy()
+      - $.environment.reporter.report($this, 'Creating ' + $username + ' user.')
+      # Creating Database on PostgreSQL
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('CreatePostgreSqlUser.template').bind(dict(
+            username => $username,
+            password => $password
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $.environment.reporter.report($this, 'User ' + $username + ' created')
+
+  assignUser:
+    Arguments:
+      - username:
+          Contract: $.string().notNull()
+      - database:
+          Contract: $.string().notNull()
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $.deploy()
+      - $.environment.reporter.report($this, 'Assigning user' + $username + ' to database ' + $database)
+      # Assigning user to PostgresQL database
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('AssignUserPostgreSql.template').bind(dict(
+            username => $username,
+            database => $database
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $.environment.reporter.report($this, 'User ' + $username + ' assigned to database ' + $database)
+
+  getConnectionString:
+    Arguments:
+      - username:
+          Contract: $.string().notNull()
+      - password:
+          Contract: $.string().notNull()
+    Body:
+      - If: $.instance.assignFloatingIp
+        Then:
+          - $host: $.instance.floatingIpAddress
+        Else:
+          - $host: $.instance.ipAddresses[0]
+      - Return: ('psql://{0}@{1}:{2}'.format($username, $password, $host))
