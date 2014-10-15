@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.docker.DockerApp
+Name: Docker Abstract Application
+Description: |
+ Abstract Docker Application
+Author: 'Mirantis, Inc'
+Tags: [docker, application]
+Classes:
+ io.murano.apps.docker.DockerApp: DockerApp.murano

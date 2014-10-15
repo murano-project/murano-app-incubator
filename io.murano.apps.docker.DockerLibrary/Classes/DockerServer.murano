@@ -1,0 +1,72 @@
+Namespaces:
+  =: io.murano.apps.docker
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: DockerServer
+
+Extends: DockerService
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(secGroupConfigured, false)
+        Then:
+          - $.environment.reporter.report($this, 'Setup Security Groups for Docker Server')
+          - $securityGroupIngress:
+              - ToPort: 22
+                FromPort: 22
+                IpProtocol: 'tcp'
+                External: True
+              - ToPort: 2375
+                FromPort: 2375
+                IpProtocol: 'tcp'
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.setAttr(secGroupConfigured, True)
+
+  addDockerApp:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+      docker_image:
+        Contract: $.string().notNull()
+      docker_env:
+        Contract: [$.string()]
+      docker_app_ports:
+        Contract: [$.int()]
+      docker_port_bindings:
+        Contract: {}
+
+    Body:
+      - $resources: new(sys:Resources)
+      - $.environment.reporter.report($this, 'Adding Docker Application')
+      - $template: $resources.yaml('docker_app.hot').bind(dict(
+          docker_app_name => $.name,
+          docker_server => $instance.floatingIpAddress,
+          docker_image => $docker_image,
+          docker_app_env => $docker_env,
+          docker_app_ports => $docker_app_ports,
+          docker_port_bindings => $port_bindings
+           ))
+
+  addDockerServer:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+    Body:
+      - $.environment.reporter.report($this, 'Setting Up Docker Server')
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('DeployDocker.template')
+      - $instance.agent.call($template, $resources)

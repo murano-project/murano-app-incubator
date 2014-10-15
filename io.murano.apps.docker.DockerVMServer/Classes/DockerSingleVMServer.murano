@@ -1,0 +1,73 @@
+Namespaces:
+  =: io.murano.apps.docker
+  std: io.murano
+  res: io.murano.resources
+
+Name: DockerSingleVMServer
+
+Extends: DockerServer
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(deployed, false)
+        Then:
+          - $.environment.reporter.report($this, 'Create VM for Docker Server')
+          - $.super($.deploy())
+          - $.instance.deploy()
+          - $.cast('io.murano.apps.docker.DockerServer').addDockerServer($.instance)
+          - $.setAttr(deployed, true)
+
+  addDockerApp:
+      Arguments:
+        instance:
+          Contract: $.class(res:Instance).notNull()
+        docker_image:
+          Contract: $.string().NotNull()
+        docker_env:
+          Contract: [$.string()]
+        docker_app_ports:
+          Contract: [$.int()]
+        docker_port_bindings:
+          Contract: {}
+      Body:
+        - $.cast('io.murano.apps.docker.DockerServer').addDockerServer(
+            instance => $instance,
+            docker_image => $docker_image,
+            docker_env => $docker_env,
+            docker_app_ports => $docker_app_ports,
+            docker_port_bindings => $docker_port_bindings
+            )
+
+  addApplication:
+        Arguments:
+          docker_image:
+            Contract: $.string().NotNull()
+          docker_env:
+            Contract: [$.string()]
+          app_port:
+            Contract: $.int()
+        Body:
+         - $docker_app_ports:
+             $app_port: $app_port
+         - $docker_app_ports:
+           - $app_port
+         - $.addDockerApp(
+              instance => $.instance,
+              docker_image => $docker_image,
+              docker_env => $docker_env,
+              docker_app_ports => $docker_app_ports,
+              docker_port_bindings => $docker_port_bindings
+             )

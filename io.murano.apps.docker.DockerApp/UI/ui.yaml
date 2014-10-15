@@ -1,0 +1,50 @@
+Version: 2
+
+Application:
+  ?:
+    type: io.murano.apps.docker.DockerApp
+  name: $.appConfiguration.name
+
+  docker: $.appConfiguration.docker
+
+  image: $.appConfig.image
+  port: $.appConfig.port
+
+
+Forms:
+  - appConfiguration:
+      fields:
+        - name: name
+          type: string
+          label: Application Name
+          initial: 'DockerApp'
+          description: >-
+            Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
+            underline are allowed
+
+        - name: docker
+          type: io.murano.apps.docker.DockerSingleVMServer
+          label: Container Service
+          description: >-
+            Select an instance of Docker contaniner to run the app
+
+  - appConfig:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          descriptionTitle: Docker Application Configuration
+          description: Specify the properties of the Docker application
+        - name: image
+          type: string
+          label: Database name
+          initial: mysql
+          description: >-
+            Please, provide image name
+        - name: port
+          type: integer
+          initial: 3360
+          label: Port
+          description: >-
+            Please, provide application port

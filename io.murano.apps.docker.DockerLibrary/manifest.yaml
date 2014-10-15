@@ -1,0 +1,11 @@
+Format: 1.0
+Type: Library
+FullName: io.murano.apps.docker.DockerLibrary
+Name: DockerLibrary
+Description: |
+ This is a Docker library which provides basic resources for working with Docker.
+Author: 'Mirantis, Inc'
+Tags: [docker]
+Classes:
+ io.murano.apps.docker.DockerServer: DockerServer.murano
+ io.murano.apps.docker.DockerService: DockerService.murano

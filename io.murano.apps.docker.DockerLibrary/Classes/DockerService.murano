@@ -1,0 +1,29 @@
+Namespaces:
+  =: io.murano.apps.docker
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: DockerService
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+  addDockerServer:
+    Body:
+  addDockerApp:
+    Body:
+  addApplication:
+    Body:

@@ -1,0 +1,11 @@
+  $docker_app_name:
+    type: "DockerInc::Docker::Container"
+    properties:
+      docker_endpoint: $tcp://{docker_server}:2375
+      image: $docker_image
+      env:
+        $docker_app_env
+      port_specs:
+        $docker_app_ports
+      port_bindings:
+        $docker_port_bindings
