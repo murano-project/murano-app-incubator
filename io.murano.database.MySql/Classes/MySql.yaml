@@ -1,0 +1,80 @@
+Namespaces:
+  =: io.murano.database
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+
+Name: MySql
+
+Extends:
+  - Sql
+  - std:Application
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $.environment.reporter.report($this, 'Creating VM for MySql')
+          - $securityGroupIngress:
+              - ToPort: 3306
+                FromPort: 3306
+                IpProtocol: tcp
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          # Deploy MySql
+          - $.environment.reporter.report($this, 'Instance is created. Deploying MySql')
+          - $template: $resources.yaml('DeployMySql.template')
+          - $.instance.agent.call($template, $resources)
+          - $.environment.reporter.report($this, 'MySql application is installed.')
+          - $.setAttr(deployed, True)
+
+  createDatabase:
+    Body:
+      - $this.find(std:Environment).reporter.report($this, 'Creating ' + $database + ' database.')
+      # Creating Database on MySQL
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('CreateMySqlDatabase.template').bind(dict(
+            database => $database
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $.environment.reporter.report($this, 'Database ' + $database + ' created')
+
+  createUser:
+    Body:
+      - $this.find(std:Environment).reporter.report($this, 'Creating ' + $username + ' user.')
+      # Creating user on MySQL
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('CreateMySqlUser.template').bind(dict(
+            username => $username,
+            password => $password
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $.environment.reporter.report($this, 'User ' + $username + ' created')
+
+  assignUser:
+    Body:
+      - $this.find(std:Environment).reporter.report($this, 'Assigning user' + $username + ' to database ' + $database)
+      # Assigning user to MySQL database
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('AssignUserMySql.template').bind(dict(
+            username => $username,
+            database => $database
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $.environment.reporter.report($this, 'User ' + $username + ' assigned to database ' + $database)
+
+  getConnectionString:
+    Body:
+      - If: $.instance.assignFloatingIP
+        Then:
+          - $host: $.instance.assignFloatingIP
+        Else:
+          - $host: $.instance.ipAddresses[0]
+        - Return: ('mysql://{0}@{1}:{2}'.format($username, $password, $host))
