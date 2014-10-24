@@ -13,9 +13,7 @@ Scripts:
     Type: Application
     Version: 1.0.0
     EntryPoint: deployTomcat.sh
-    Files:
-      - <installer.sh>
-      - <common.sh>
+    Files: []
     Options:
       captureStdout: true
       captureStderr: true

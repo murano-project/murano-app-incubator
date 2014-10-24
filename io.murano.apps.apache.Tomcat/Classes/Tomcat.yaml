@@ -26,7 +26,7 @@ Workflow:
     Body:
       - If: !yaql "not bool($.getAttr(deployed))"
         Then:
-          - $this.find(std:Environment).reporter.report($this, 'Creating VM for Tomcat ')
+          - $.environment.reporter.report($this, 'Creating VM for Tomcat ')
           - $securityGroupIngress:
               - ToPort: 80
                 FromPort: 80
@@ -45,7 +45,7 @@ Workflow:
           - $resources: new(sys:Resources)
           # Deploy Apache Tomcat
           - $template: $resources.yaml('DeployTomcat.template')
-          - $this.find(std:Environment).reporter.report($this, 'Instance is created. Deploying Tomcat')
+          - $.environment.reporter.report($this, 'Instance is created. Deploying Tomcat')
           - $.instance.agent.call($template, $resources)
-          - $this.find(std:Environment).reporter.report($this, 'Tomcat is installed')
+          - $.environment.reporter.report($this, 'Tomcat is installed')
           - $.setAttr(deployed, True)
