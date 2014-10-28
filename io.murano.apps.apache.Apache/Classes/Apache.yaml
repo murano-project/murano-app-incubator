@@ -27,17 +27,23 @@ Workflow:
 
   deploy:
     Body:
-      - $securityGroupIngress:
-        - ToPort: 80
-          FromPort: 80
-          IpProtocol: tcp
-          External: True
-        - ToPort: 443
-          FromPort: 443
-          IpProtocol: tcp
-          External: True
-      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
-      - $.instance.deploy()
-      - $resources: new(sys:Resources)
-      - $template: $resources.yaml('DeployApache.template').bind(dict(enablePHP => $.enablePHP))
-      - $.instance.agent.call($template, $resources)
+      - If: !yaql "not bool($.getAttr(deployed))"
+        Then:
+          - $.environment.reporter.report($this, 'Creating VM for Apache Server ')
+          - $securityGroupIngress:
+            - ToPort: 80
+              FromPort: 80
+              IpProtocol: tcp
+              External: True
+            - ToPort: 443
+              FromPort: 443
+              IpProtocol: tcp
+              External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          - $template: $resources.yaml('DeployApache.template').bind(dict(enablePHP => $.enablePHP))
+          - $.environment.reporter.report($this, 'Instance is created. Deploying Apache')
+          - $.instance.agent.call($template, $resources)
+          - $.environment.reporter.report($this, 'Apache is installed')
+          - $.setAttr(deployed, True)
