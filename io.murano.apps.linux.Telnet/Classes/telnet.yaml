@@ -22,7 +22,7 @@ Workflow:
 
   deploy:
     Body:
-      - $this.find(std:Environment).reporter.report($this, 'Creating VM for Telnet instace.')
+      - $this.find(std:Environment).reporter.report($this, 'Creating VM for Telnet instance.')
       - $securityGroupIngress:
           - ToPort: 23
             FromPort: 23
