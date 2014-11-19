@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.HDPSandbox
+Name: HDPSandbox
+Description: |
+ Application for deployment VM with HDP Sandbox.
+Author: 'Mirantis Inc'
+Tags: [Hadoop, BigData]
+Classes:
+ io.murano.apps.HDPSandbox: HDPSandbox.yaml
