@@ -2,7 +2,7 @@ Version: 2
 
 Application:
   ?:
-    type: io.murano.apps.apache.Apache
+    type: io.murano.apps.apache.ApacheHttpServer
   name: $.appConfiguration.name
   enablePHP: $.appConfiguration.enablePHP
   instance:
@@ -20,6 +20,7 @@ Forms:
         - name: name
           type: string
           label: Application Name
+          initial: 'ApacheHttpServer'
           description: >-
             Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
             underline are allowed

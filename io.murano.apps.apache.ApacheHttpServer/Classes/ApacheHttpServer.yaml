@@ -5,7 +5,7 @@ Namespaces:
   sys: io.murano.system
 
 
-Name: Apache
+Name: ApacheHttpServer
 
 Extends: std:Application
 
@@ -20,30 +20,30 @@ Properties:
   instance:
     Contract: $.class(res:Instance).notNull()
 
-Workflow:
+Methods:
   initialize:
     Body:
-      - $.environment: $.find(std:Environment).require()
+      - $._environment: $.find(std:Environment).require()
 
   deploy:
     Body:
-      - If: !yaql "not bool($.getAttr(deployed))"
+      - If: not $.getAttr(deployed, false)
         Then:
-          - $.environment.reporter.report($this, 'Creating VM for Apache Server ')
+          - $._environment.reporter.report($this, 'Creating VM for Apache Server.')
           - $securityGroupIngress:
             - ToPort: 80
               FromPort: 80
               IpProtocol: tcp
-              External: True
+              External: true
             - ToPort: 443
               FromPort: 443
               IpProtocol: tcp
-              External: True
-          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+              External: true
+          - $._environment.securityGroupManager.addGroupIngress($securityGroupIngress)
           - $.instance.deploy()
           - $resources: new(sys:Resources)
           - $template: $resources.yaml('DeployApache.template').bind(dict(enablePHP => $.enablePHP))
-          - $.environment.reporter.report($this, 'Instance is created. Deploying Apache')
+          - $._environment.reporter.report($this, 'Instance is created. Deploying Apache')
           - $.instance.agent.call($template, $resources)
-          - $.environment.reporter.report($this, 'Apache is installed')
-          - $.setAttr(deployed, True)
+          - $._environment.reporter.report($this, 'Apache is installed.')
+          - $.setAttr(deployed, true)
