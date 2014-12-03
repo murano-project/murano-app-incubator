@@ -1,6 +1,6 @@
 Format: 1.0
 Type: Application
-FullName: io.murano.database.MySql
+FullName: io.murano.databases.MySql
 Name: MySQL
 Description: |
  MySql is a relational database management system (RDBMS), and ships with
@@ -9,4 +9,4 @@ Description: |
 Author: 'Mirantis, Inc'
 Tags: [Database, MySql, SQL, RDBMS]
 Classes:
- io.murano.database.MySql: MySql.yaml
+ io.murano.databases.MySql: MySql.yaml

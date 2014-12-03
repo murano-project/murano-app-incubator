@@ -2,8 +2,11 @@ Version: 2
 
 Application:
   ?:
-    type: io.murano.database.PostgreSql
+    type: io.murano.databases.PostgreSql
   name: $.appConfiguration.name
+  database: $.initDatabaseConfiguration.database
+  username: $.initDatabaseConfiguration.username
+  password: $.initDatabaseConfiguration.password
   instance:
     ?:
       type: io.murano.resources.LinuxMuranoInstance
@@ -30,8 +33,6 @@ Forms:
              Select to true to assign floating IP automatically
           initial: false
           required: false
-          widgetMedia:
-            css: {all: ['muranodashboard/css/checkbox.css']}
         - name: unitNamingPattern
           type: string
           required: false
@@ -39,6 +40,33 @@ Forms:
           widgetMedia:
             js: ['muranodashboard/js/support_placeholder.js']
             css: {all: ['muranodashboard/css/support_placeholder.css']}
+  - initDatabaseConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          descriptionTitle: Database Configuration
+          description: Specify the properties of the database which will be created at MySql Server
+        - name: database
+          type: string
+          required: false
+          label: Database name
+          description: >-
+            Please, provide database name that is going to be created
+        - name: username
+          type: string
+          required: false
+          label: Username
+          description: >-
+            Please, provide username that is going to be used to connect to the database
+        - name: password
+          type: password
+          required: false
+          label: Password
+          descriptionTitle: Password
+          description: >-
+            Please, provide password that is going to be used to connect to the database
   - instanceConfiguration:
       fields:
         - name: title
