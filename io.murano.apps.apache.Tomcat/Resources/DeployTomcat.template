@@ -6,7 +6,7 @@ Parameters:
   appName: $appName
 
 Body: |
-  return deploy(args.appName).stdout
+  deploy(args.appName)
 
 Scripts:
   deploy:
@@ -15,5 +15,5 @@ Scripts:
     EntryPoint: deployTomcat.sh
     Files: []
     Options:
-      captureStdout: true
+      captureStdout: false
       captureStderr: true
