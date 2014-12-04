@@ -1,0 +1,42 @@
+Namespaces:
+  =: io.murano.database
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+
+Name: Sql
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+Workflow:
+
+  createDatabase:
+    Arguments:
+      - database:
+          Contract: $.string().notNull()
+
+  createUser:
+    Arguments:
+      - username:
+          Contract: $.string().notNull()
+      - password:
+          Contract: $.string().notNull()
+
+  assignUser:
+    Arguments:
+      - username:
+          Contract: $.string().notNull()
+      - database:
+          Contract: $.string().notNull()
+
+  getConnectionString:
+    Arguments:
+      - username:
+          Contract: $.string().notNull()
+      - password:
+          Contract: $.string().notNull()

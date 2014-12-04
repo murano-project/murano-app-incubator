@@ -1,20 +1,25 @@
 Namespaces:
-  =: io.murano.apps.apache
+  =: io.murano.apps
   std: io.murano
   res: io.murano.resources
   sys: io.murano.system
 
 
-Name: Tomcat
+Name: ZabbixServer
 
 Extends: std:Application
 
 Properties:
   name:
     Contract: $.string().notNull()
-
   instance:
     Contract: $.class(res:Instance).notNull()
+  database:
+    Contract: $.string().notNull()
+  username:
+    Contract: $.string().notNull()
+  password:
+    Contract: $.string().notNull()
 
 Methods:
   initialize:
@@ -25,14 +30,14 @@ Methods:
     Body:
       - If: not $.getAttr(deployed, false)
         Then:
-          - $._environment.reporter.report($this, 'Creating VM for Tomcat ')
+          - $._environment.reporter.report($this, 'Creating VM for Zabbix Server')
           - $securityGroupIngress:
-              - ToPort: 80
-                FromPort: 80
+              - ToPort: 10051
+                FromPort: 10051
                 IpProtocol: tcp
                 External: true
-              - ToPort: 8080
-                FromPort: 8080
+              - ToPort: 80
+                FromPort: 80
                 IpProtocol: tcp
                 External: true
               - ToPort: 443
@@ -42,9 +47,15 @@ Methods:
           - $._environment.securityGroupManager.addGroupIngress($securityGroupIngress)
           - $.instance.deploy()
           - $resources: new(sys:Resources)
-          # Deploy Apache Tomcat
-          - $template: $resources.yaml('DeployTomcat.template')
-          - $._environment.reporter.report($this, 'Instance is created. Deploying Tomcat')
+          - $template: $resources.yaml('DeployZabbixServer.template').bind(dict(
+                database => $.database,
+                username => $.username,
+                password => $.password
+              ))
+          - $._environment.reporter.report($this, 'Instance is created. Deploying Zabbix Server')
           - $.instance.agent.call($template, $resources)
-          - $._environment.reporter.report($this, 'Tomcat is installed')
+          - If: $.instance.assignFloatingIp
+            Then:
+              - $address: $.instance.floatingIpAddress + '/zabbix'
+              - $._environment.reporter.report($this, format('Running at http://{0}', $address))
           - $.setAttr(deployed, true)
