@@ -3,7 +3,6 @@ Version: 2
 Application:
   ?:
     type: io.murano.apps.WordPress
-  name: $.appConfiguration.name
   database: $.appConfiguration.database
   server: $.appConfiguration.server
   dbName: $.dbConfiguration.database
@@ -15,13 +14,6 @@ Application:
 Forms:
   - appConfiguration:
       fields:
-        - name: name
-          type: string
-          label: Application Name
-          initial: 'WordPress'
-          description: >-
-            Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
-            underline are allowed
         - name: database
           type: io.murano.databases.MySql
           label: Database Server
