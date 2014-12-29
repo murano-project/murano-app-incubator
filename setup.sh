@@ -15,8 +15,8 @@
 #
 RUN_DIR=$(cd $(dirname "$0") && pwd)
 APPLICATION_NAME="murano applications packages"
-DAEMON_USER="murano"
-DAEMON_GROUP="murano"
+DAEMON_USER=${DAEMON_USER:-"murano"}
+DAEMON_GROUP=${DAEMON_GROUP:-"murano"}
 DAEMON_CONF="/etc/murano/murano.conf"
 MANAGE_CMD=$(which murano-manage)
 #
