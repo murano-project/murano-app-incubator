@@ -1,0 +1,20 @@
+FormatVersion: 2.0.0
+Version: 1.0.0
+Name: {{Deploy Sample App}}
+
+Parameters:
+  optString: $optString
+
+Body: |
+  return {{deploySampleApp}}('{0}'.format(args.optString)).stdout
+
+Scripts:
+  {{deploySampleApp}}:
+    Type: Application
+    Version: 1.0.0
+    EntryPoint: {{deploySampleApp.sh}}
+    Files:
+      - <{{sampleShellScript.sh}}>
+    Options:
+      captureStdout: true
+      captureStderr: false

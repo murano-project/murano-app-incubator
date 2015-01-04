@@ -1,0 +1,32 @@
+Namespaces:
+  =: {{io.murano.Sample}}
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+
+
+Name: {{Sample}}
+
+Extends: std:Application
+
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - $.instance.deploy()
+
+      - $template: $resources.yaml('DeploySampleApp.yaml').bind(dict(
+            optString => 'Hello world!'
+          ))
