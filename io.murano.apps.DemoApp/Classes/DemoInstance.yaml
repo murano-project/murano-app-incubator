@@ -1,0 +1,64 @@
+Namespaces:
+  =:    io.murano.apps.DemoApp
+  std:  io.murano
+  sys:  io.murano.system
+  res:  io.murano.resources
+
+Name: DemoInstance
+
+Extends: res:Instance
+
+# Define workflow steps in terms of methods
+Workflow:
+
+  createDefaultInstanceSecurityGroupRules:
+    Arguments:
+      - groupName:
+          Contract: $.string().notNull()
+    Body:
+      - $rules:
+          - ToPort: 22
+            IpProtocol: tcp
+            FromPort: 22
+            External: true
+      - $.environment.securityGroupManager.addGroupIngress(
+          rules => $rules, groupName => $groupName)
+
+
+  # Class method
+  prepareUserData:
+    Body:
+      # Defining 'variables' and loading files's content into them
+      - $res: new(sys:Resources)
+      - $configFile: $res.string('demo-agent.conf')
+      - $initScript: $res.string('demo-init.sh')
+
+      # Defining patterns to replace in config file.
+      # We create a dictionary here.
+      # function config() is defined in DSL and allows to fetch a value from conductor's config
+      #??? Why do we need apply str() function to config(rabbitmq, ssl) ? Isn't it already a string?
+      - $configReplacements:
+          "%RABBITMQ_HOST%":        config(rabbitmq, host)
+          "%RABBITMQ_PORT%":        config(rabbitmq, port)
+          "%RABBITMQ_USER%":        config(rabbitmq, login)
+          "%RABBITMQ_PASSWORD%":    config(rabbitmq, password)
+          "%RABBITMQ_VHOST%":       config(rabbitmq, virtual_host)
+          "%RABBITMQ_SSL%":         str(config(rabbitmq, ssl)).toLower()
+          "%RABBITMQ_INPUT_QUEUE%": $.agent.queueName()
+          "%RESULT_QUEUE%":         $.environment.agentListener.queueName()
+
+      # Define patterns to replace in init script file.
+      # As we pass config file encoded as base64 string inside init script,
+      #   this tranformation will be done here using base64encode() function.
+      # We use replace() method to replace patterns defined above.
+      # Again, we define a dictionary here, but this time for init script.
+      # Function coalesce() evaluates arguments passed and returns first non-null.
+      # It's a sort of searching a value in order of preference. First existing wins.
+      - $scriptReplacements:
+          "%AGENT_CONFIG_BASE64%":    base64encode($configFile.replace($configReplacements))
+          "%INTERNAL_HOSTNAME%":      $this.name
+          "%MURANO_SERVER_ADDRESS%":  coalesce(config(file_server), config(rabbitmq, host))
+          "%CA_ROOT_CERT_BASE64%":    ""
+
+      # Perform last pattern substitution and return the result.
+      - Return: $initScript.replace($scriptReplacements)
