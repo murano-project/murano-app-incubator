@@ -1,0 +1,43 @@
+Namespaces:
+  =: io.murano.apps
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+
+Name: Gerrit
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+  warUrl:
+    Contract: $.string().notNull()
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+Methods:
+  initialize:
+    Body:
+      - $._environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(deployed, false)
+        Then:
+          - $._environment.reporter.report($this, 'Creating VM for Gerrit ')
+          - $securityGroupIngress:
+              - ToPort: 8080
+                FromPort: 8080
+                IpProtocol: tcp
+                External: true
+          - $._environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          - $template: $resources.yaml('DeployGerrit.template').bind(dict(
+                warUrl => $.warUrl
+              ))
+          - $._environment.reporter.report($this, 'Instance is created. Deploying Gerrit')
+          - $.instance.agent.call($template, $resources)
+          - $._environment.reporter.report($this, 'Gerrit is installed')
+          - $.setAttr(deployed, true)
