@@ -1,0 +1,12 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.Attis
+Name: Attis
+Description: |
+ Attis wrapper to create a CI/CD and uses OpenLDAP, Gerrit and Jenkins
+Author: 'Mirantis, Inc'
+Tags: [Server]
+Classes:
+ io.murano.apps.Attis: Attis.yaml
+UI: ui.yaml
+Logo: logo.png

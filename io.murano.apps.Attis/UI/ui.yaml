@@ -1,0 +1,65 @@
+Version: 2
+
+Application:
+  ?:
+    type: io.murano.apps.Attis
+  name:     $.appConfiguration.name
+  openLDAP: $.appConfiguration.openLDAP
+  gerrit:   $.appConfiguration.gerrit
+  jenkins:  $.appConfiguration.jenkins
+  domain:   $.ldapConfiguration.domain
+  ldapUser: $.ldapConfiguration.ldapUser
+  ldapPass: $.ldapConfiguration.ldapPass
+
+
+Forms:
+  - appConfiguration:
+      fields:
+        - name: name
+          type: string
+          label: Application Name
+          initial: 'Attis'
+          description: >-
+            Enter a desired name for the application
+        - name: openLDAP
+          type: io.murano.apps.OpenLDAP
+          label: OpenLDAP Server
+          description: >-
+            Select a OpenLDAP server for authentication
+        - name: gerrit
+          type: io.murano.apps.Gerrit
+          label: Gerrit Server
+          description: >-
+            Select a Gerrit server for code review
+        - name: jenkins
+          type: io.murano.apps.Jenkins
+          label: Jenkins Server
+          description: >-
+            Select a Jenkinds server for build and test
+
+  - ldapConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          descriptionTitle: OpenLDAP Configuration
+          description: Specify the properties for OpenLDAP server
+        - name: domain
+          type: string
+          label: Domain
+          initial: example.com
+          description: >-
+            Please, provide domain for the OpenLDAP instance
+        - name: ldapUser
+          type: string
+          initial: gerrit
+          label: Username
+          description: >-
+            Please, provide username that is going to be used for Gerrit and Jenkins authentication
+        - name: ldapPass
+          type: password
+          label: Password
+          descriptionTitle: Password
+          description: >-
+            Please, provide password that is going to be used for Gerrit and Jenkins authentication

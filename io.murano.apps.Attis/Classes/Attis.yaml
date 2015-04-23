@@ -1,0 +1,49 @@
+Namespaces:
+  =: io.murano.apps
+  std: io.murano
+  sys: io.murano.system
+
+Name: Attis
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+  openLDAP:
+    Contract: $.class(OpenLDAP).notNull()
+  gerrit:
+    Contract: $.class(Gerrit).notNull()
+  jenkins:
+    Contract: $.class(Jenkins).notNull()
+  domain:
+    Contract: $.string().notNull()
+  ldapUser:
+    Contract: $.string().notNull()
+  ldapPass:
+    Contract: $.string().notNull()
+
+Methods:
+  initialize:
+    Body:
+      - $._environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(deployed, false)
+        Then:
+          - $._environment.reporter.report($this, 'Attis add user to OpenLDAP.')
+          - $.openLDAP.configureOpenLDAPUser($.domain, $.ldapUser, $.ldapPass)
+          - $._environment.reporter.report($this, 'Attis user added to OpenLDAP.')
+          - If: $.openLDAP.instance.assignFloatingIp
+            Then:
+              - $host: $.openLDAP.instance.floatingIpAddress
+            Else:
+              - $host: $.openLDAP.instance.ipAddresses[0]
+          - $._environment.reporter.report($this, 'Attis Gerrit connect LDAP')
+          - $.gerrit.connectLDAP($host, $.domain)
+          - $._environment.reporter.report($this, 'Attis Gerrit LDAP connected')
+          - $._environment.reporter.report($this, 'Attis Jenkins connect LDAP')
+          - $.jenkins.connectLDAP($host, $.domain)
+          - $._environment.reporter.report($this, 'Attis Jenkins LDAP connected')
+          - $.setAttr(deployed, true)
