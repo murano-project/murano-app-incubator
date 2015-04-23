@@ -4,7 +4,7 @@ Application:
   ?:
     type: io.murano.apps.Gerrit
   name: $.appConfiguration.name
-  warUrl: $.gerritConfiguration.warUrl
+  warUrl: $.appConfiguration.warUrl
   instance:
     ?:
       type: io.murano.resources.LinuxMuranoInstance
@@ -34,12 +34,10 @@ Forms:
           required: false
           widgetMedia:
             css: {all: ['muranodashboard/css/checkbox.css']}
-  - gerritConfiguration:
-      fields:
         - name: warUrl
           type: string
           label: URL for war
-          initial: http://gerrit-releases.storage.googleapis.com/gerrit-2.10.1.war
+          initial: http://gerrit-releases.storage.googleapis.com/gerrit-2.11.war
           description: >-
             Enter the war version from Gerrit's site
             http://gerrit-releases.storage.googleapis.com/index.html

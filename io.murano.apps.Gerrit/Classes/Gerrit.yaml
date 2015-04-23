@@ -25,19 +25,48 @@ Methods:
     Body:
       - If: not $.getAttr(deployed, false)
         Then:
-          - $._environment.reporter.report($this, 'Creating VM for Gerrit ')
           - $securityGroupIngress:
               - ToPort: 8080
                 FromPort: 8080
                 IpProtocol: tcp
                 External: true
+              - ToPort: 29418
+                FromPort: 29418
+                IpProtocol: tcp
+                External: true
           - $._environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $._environment.reporter.report($this, 'Gerrit creating instance')
           - $.instance.deploy()
           - $resources: new(sys:Resources)
           - $template: $resources.yaml('DeployGerrit.template').bind(dict(
                 warUrl => $.warUrl
               ))
-          - $._environment.reporter.report($this, 'Instance is created. Deploying Gerrit')
+          - $._environment.reporter.report($this, 'Gerrit deploying')
           - $.instance.agent.call($template, $resources)
-          - $._environment.reporter.report($this, 'Gerrit is installed')
+          - $._environment.reporter.report($this, 'Gerrit deployed')
           - $.setAttr(deployed, true)
+
+  connectLDAP:
+    Arguments:
+      - openLDAPip:
+          Contract: $.string().notNull()
+      - domain:
+          Contract: $.string().notNull()
+
+    Body:
+      - $.deploy()
+      - $resources: new(sys:Resources)
+      - If: $.instance.assignFloatingIp
+        Then:
+          - $host: $.instance.floatingIpAddress
+        Else:
+          - $host: $.instance.ipAddresses[0]
+      - $._environment.reporter.report($this, format('Gerrit connecting LDAP {0} {1}.', $openLDAPip, $host))
+      - $._environment.reporter.report($this, 'Gerrit connecting LDAP')
+      - $template: $resources.yaml('ConnectLDAP.template').bind(dict(
+            openLDAPip => $openLDAPip,
+            host => $host,
+            domain => $domain
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $._environment.reporter.report($this, 'Gerrit LDAP connected')
