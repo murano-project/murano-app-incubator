@@ -23,7 +23,7 @@ Methods:
     Body:
       - If: not $.getAttr(deployed, false)
         Then:
-          - $._environment.reporter.report($this, 'Creating VM for Jenkins ')
+          - $._environment.reporter.report($this, 'Jenkins creating instance ')
           - $securityGroupIngress:
               - ToPort: 8080
                 FromPort: 8080
@@ -33,7 +33,26 @@ Methods:
           - $.instance.deploy()
           - $resources: new(sys:Resources)
           - $template: $resources.yaml('DeployJenkins.template')
-          - $._environment.reporter.report($this, 'Instance is created. Deploying Jenkins')
+          - $._environment.reporter.report($this, 'Jenkins deploying')
           - $.instance.agent.call($template, $resources)
-          - $._environment.reporter.report($this, 'Jenkins is installed')
+          - $._environment.reporter.report($this, 'Jenkins deployed')
           - $.setAttr(deployed, true)
+
+  connectLDAP:
+    Arguments:
+      - openLDAPip:
+          Contract: $.string().notNull()
+      - domain:
+          Contract: $.string().notNull()
+
+    Body:
+      - $.deploy()
+      - $resources: new(sys:Resources)
+      - $._environment.reporter.report($this, 'Jenkins connecting LDAP.')
+      - $template: $resources.yaml('ConnectLDAP.template').bind(dict(
+            openLDAPip => $openLDAPip,
+            domain => $domain
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $._environment.reporter.report($this, 'Jenkins LDAP connected')
+

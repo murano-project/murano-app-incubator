@@ -1,18 +1,19 @@
 FormatVersion: 2.0.0
 Version: 1.0.0
-Name: Deploy Jenkins
+Name: Connect LDAP
 
 Parameters:
-  appName: $appName
+  openLDAPip: $openLDAPip
+  domain:     $domain
 
 Body: |
-  return deploy(args.appName).stdout
+  return configure('{0} {1}'.format(args.openLDAPip, args.domain)).stdout
 
 Scripts:
-  deploy:
+  configure:
     Type: Application
     Version: 1.0.0
-    EntryPoint: deployJenkins.sh
+    EntryPoint: connectLDAP.sh
     Files: []
     Options:
       captureStdout: true
