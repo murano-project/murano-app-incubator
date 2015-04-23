@@ -6,8 +6,6 @@ PASSWORD="$3"
 NAME="`echo "$DOMAIN" | cut -d. -f1`"
 TLD="`echo "$DOMAIN" | cut -d. -f2`"
 
-echo "configure User" > /tmp/configureUser.out
-echo $NAME $USERNAME $PASSWORD >> /tmp/configureUser.out
 
 # Create group.ldif and user.ldif
 cat << GROUP > /tmp/group.ldif

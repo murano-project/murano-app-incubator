@@ -1,9 +1,6 @@
 #!/bin/bash
 DOMAIN="$1"
 
-echo "reconfigure slapd" > /tmp/configureDomain.out
-echo $DOMAIN >> /tmp/configureDomain.out
-
 echo "slapd slapd/no_configuration boolean false"   |  debconf-set-selections
 echo "slapd slapd/domain string ${DOMAIN}"          |  debconf-set-selections
 echo "slapd shared/organization string '${DOMAIN}'" |  debconf-set-selections

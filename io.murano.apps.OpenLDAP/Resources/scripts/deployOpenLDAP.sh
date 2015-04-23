@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "deploy slapd" > /tmp/deployLDAP.out
-
 apt-get update
 apt-get install -y debconf
 

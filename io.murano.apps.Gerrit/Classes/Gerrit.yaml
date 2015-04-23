@@ -62,11 +62,11 @@ Methods:
         Else:
           - $host: $.instance.ipAddresses[0]
       - $._environment.reporter.report($this, format('Gerrit connecting LDAP {0} {1}.', $openLDAPip, $host))
-      - $._environment.reporter.report($this, 'Gerrit connecting LDAP')
+      - $._environment.reporter.report($this, 'Gerrit connecting to LDAP')
       - $template: $resources.yaml('ConnectLDAP.template').bind(dict(
             openLDAPip => $openLDAPip,
             host => $host,
             domain => $domain
           ))
       - $.instance.agent.call($template, $resources)
-      - $._environment.reporter.report($this, 'Gerrit LDAP connected')
+      - $._environment.reporter.report($this, 'Gerrit connected to LDAP')

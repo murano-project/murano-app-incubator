@@ -3,13 +3,14 @@ OPENLDAP_IP="$1"
 HOST="$2"
 DOMAIN="$3"
 
+# parse tld
 NAME="`echo "$DOMAIN" | cut -d. -f1`"
 TLD="`echo "$DOMAIN" | cut -d. -f2`"
 
-echo "configure User" > /tmp/connectldap.out
-echo $NAME $TLD $OPENLDAP_IP $HOST >> /tmp/connectldap.out
+# generate sshkeys with NO PASSWORD 
+sudo -u gerrit2 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
-# setup gerrit
+# setup gerrit to authenticate from OpenLDAP
 sed -e "s/type = OPENID/type = ldap/" -i /home/gerrit2/gerrit_testsite/etc/gerrit.config
 sed -e "s,canonicalWebUrl.*,canonicalWebUrl = http://${HOST}:8080," -i /home/gerrit2/gerrit_testsite/etc/gerrit.config
 cat << EOF >> /home/gerrit2/gerrit_testsite/etc/gerrit.config
@@ -20,5 +21,9 @@ cat << EOF >> /home/gerrit2/gerrit_testsite/etc/gerrit.config
  	password = openstack
  	accountFullName = cn  
 EOF
+
+# restart gerrit
 sudo -u gerrit2 /home/gerrit2/gerrit_testsite/bin/gerrit.sh restart
-sudo -u gerrit2 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+
+# add ssh key to gerrit but need to have a key already there. This needs to be done GUI for noww
+# cat ~/.ssh/id_rsa.pub | ssh -i ~/.ssh/id_rsa -p 29418 localhost gerrit set-account --add-ssh-key - gerrit2

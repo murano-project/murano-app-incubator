@@ -40,10 +40,10 @@ Methods:
               - $host: $.openLDAP.instance.floatingIpAddress
             Else:
               - $host: $.openLDAP.instance.ipAddresses[0]
-          - $._environment.reporter.report($this, 'Attis Gerrit connect LDAP')
+          - $._environment.reporter.report($this, 'Attis have Gerrit connect LDAP')
           - $.gerrit.connectLDAP($host, $.domain)
-          - $._environment.reporter.report($this, 'Attis Gerrit LDAP connected')
-          - $._environment.reporter.report($this, 'Attis Jenkins connect LDAP')
+          - $._environment.reporter.report($this, 'Attis succeeded connecting LDAP to Gerrit')
+          - $._environment.reporter.report($this, 'Attis have Jenkins connect LDAP')
           - $.jenkins.connectLDAP($host, $.domain)
-          - $._environment.reporter.report($this, 'Attis Jenkins LDAP connected')
+          - $._environment.reporter.report($this, 'Attis succeeded connecting LDAP to Jenkins')
           - $.setAttr(deployed, true)
