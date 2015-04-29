@@ -55,18 +55,30 @@ Methods:
 
     Body:
       - $.deploy()
-      - $resources: new(sys:Resources)
       - If: $.instance.assignFloatingIp
         Then:
           - $host: $.instance.floatingIpAddress
         Else:
           - $host: $.instance.ipAddresses[0]
-      - $._environment.reporter.report($this, format('Gerrit connecting LDAP {0} {1}.', $openLDAPip, $host))
-      - $._environment.reporter.report($this, 'Gerrit connecting to LDAP')
+      - $resources: new(sys:Resources)
       - $template: $resources.yaml('ConnectLDAP.template').bind(dict(
             openLDAPip => $openLDAPip,
             host => $host,
             domain => $domain
           ))
+      - $._environment.reporter.report($this, 'Gerrit connecting to LDAP')
       - $.instance.agent.call($template, $resources)
       - $._environment.reporter.report($this, 'Gerrit connected to LDAP')
+
+  putKey:
+    Arguments:
+      - sshKey:
+          Contract: $.string().notNull()
+
+    Body:
+      - $resources: new(sys:Resources)
+      - $._environment.reporter.report($this, 'Gerrit put sshKey.')
+      - $template: $resources.yaml('PutKey.template').bind(dict(
+                sshKey => $sshKey
+              ))
+      - $.instance.agent.call($template, $resources)

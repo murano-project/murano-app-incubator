@@ -7,10 +7,7 @@ Application:
   openLDAP: $.appConfiguration.openLDAP
   gerrit:   $.appConfiguration.gerrit
   jenkins:  $.appConfiguration.jenkins
-  domain:   $.ldapConfiguration.domain
-  ldapUser: $.ldapConfiguration.ldapUser
-  ldapPass: $.ldapConfiguration.ldapPass
-
+  domain:   $.appConfiguration.domain
 
 Forms:
   - appConfiguration:
@@ -35,31 +32,10 @@ Forms:
           type: io.murano.apps.Jenkins
           label: Jenkins Server
           description: >-
-            Select a Jenkinds server for build and test
-
-  - ldapConfiguration:
-      fields:
-        - name: title
-          type: string
-          required: false
-          hidden: true
-          descriptionTitle: OpenLDAP Configuration
-          description: Specify the properties for OpenLDAP server
+            Select a Jenkins server for build and test
         - name: domain
           type: string
           label: Domain
           initial: example.com
           description: >-
             Please, provide domain for the OpenLDAP instance
-        - name: ldapUser
-          type: string
-          initial: gerrit
-          label: Username
-          description: >-
-            Please, provide username that is going to be used for Gerrit and Jenkins authentication
-        - name: ldapPass
-          type: password
-          label: Password
-          descriptionTitle: Password
-          description: >-
-            Please, provide password that is going to be used for Gerrit and Jenkins authentication

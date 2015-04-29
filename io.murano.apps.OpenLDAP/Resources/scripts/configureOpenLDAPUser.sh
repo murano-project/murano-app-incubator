@@ -26,9 +26,8 @@ uidNumber: 1001
 gidNumber: 1001
 homeDirectory: /home/${USERNAME}
 loginShell: /bin/bash
-gecos: ${USERNAME}
+gecos: ${USERNAME}@${DOMAIN}
 userPassword: {crypt}x
-mail: ${USERNAME}@${DOMAIN}
 shadowLastChange: 0
 shadowMax: 0
 shadowWarning: 0

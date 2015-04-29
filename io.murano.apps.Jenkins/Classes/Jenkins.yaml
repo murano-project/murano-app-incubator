@@ -56,3 +56,28 @@ Methods:
       - $.instance.agent.call($template, $resources)
       - $._environment.reporter.report($this, 'Jenkins LDAP connected')
 
+  connectGerrit:
+    Arguments:
+      - gerritIp:
+          Contract: $.string().notNull()
+      - domain:
+          Contract: $.string().notNull()
+
+    Body:
+      - $.deploy()
+      - $resources: new(sys:Resources)
+      - $._environment.reporter.report($this, 'Jenkins connecting Gerrit.')
+      - $template: $resources.yaml('ConnectGerrit.template').bind(dict(
+            gerritIp => $gerritIp,
+            domain => $domain
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $._environment.reporter.report($this, 'Jenkins Gerrit connected')
+
+  getKey:
+    Body:
+      - $resources: new(sys:Resources)
+      - $._environment.reporter.report($this, 'Jenkins get sshKey.')
+      - $template: $resources.yaml('GetKey.template')
+      - $sshKey: $.instance.agent.call($template, $resources)
+      - Return: format('{0}', $sshKey)
