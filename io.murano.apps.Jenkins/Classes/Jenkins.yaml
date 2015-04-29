@@ -1,0 +1,83 @@
+Namespaces:
+  =: io.murano.apps
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+
+Name: Jenkins
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+Methods:
+  initialize:
+    Body:
+      - $._environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(deployed, false)
+        Then:
+          - $._environment.reporter.report($this, 'Jenkins creating instance ')
+          - $securityGroupIngress:
+              - ToPort: 8080
+                FromPort: 8080
+                IpProtocol: tcp
+                External: true
+          - $._environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          - $template: $resources.yaml('DeployJenkins.template')
+          - $._environment.reporter.report($this, 'Jenkins deploying')
+          - $.instance.agent.call($template, $resources)
+          - $._environment.reporter.report($this, 'Jenkins deployed')
+          - $.setAttr(deployed, true)
+
+  connectLDAP:
+    Arguments:
+      - openLDAPip:
+          Contract: $.string().notNull()
+      - domain:
+          Contract: $.string().notNull()
+
+    Body:
+      - $.deploy()
+      - $resources: new(sys:Resources)
+      - $._environment.reporter.report($this, 'Jenkins connecting LDAP.')
+      - $template: $resources.yaml('ConnectLDAP.template').bind(dict(
+            openLDAPip => $openLDAPip,
+            domain => $domain
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $._environment.reporter.report($this, 'Jenkins LDAP connected')
+
+  connectGerrit:
+    Arguments:
+      - gerritIp:
+          Contract: $.string().notNull()
+      - domain:
+          Contract: $.string().notNull()
+
+    Body:
+      - $.deploy()
+      - $resources: new(sys:Resources)
+      - $._environment.reporter.report($this, 'Jenkins connecting Gerrit.')
+      - $template: $resources.yaml('ConnectGerrit.template').bind(dict(
+            gerritIp => $gerritIp,
+            domain => $domain
+          ))
+      - $.instance.agent.call($template, $resources)
+      - $._environment.reporter.report($this, 'Jenkins Gerrit connected')
+
+  getKey:
+    Body:
+      - $resources: new(sys:Resources)
+      - $._environment.reporter.report($this, 'Jenkins get sshKey.')
+      - $template: $resources.yaml('GetKey.template')
+      - $sshKey: $.instance.agent.call($template, $resources)
+      - Return: format('{0}', $sshKey)

@@ -1,0 +1,84 @@
+Namespaces:
+  =: io.murano.apps
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+
+Name: Gerrit
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+  warUrl:
+    Contract: $.string().notNull()
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+Methods:
+  initialize:
+    Body:
+      - $._environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - If: not $.getAttr(deployed, false)
+        Then:
+          - $securityGroupIngress:
+              - ToPort: 8080
+                FromPort: 8080
+                IpProtocol: tcp
+                External: true
+              - ToPort: 29418
+                FromPort: 29418
+                IpProtocol: tcp
+                External: true
+          - $._environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $._environment.reporter.report($this, 'Gerrit creating instance')
+          - $.instance.deploy()
+          - $resources: new(sys:Resources)
+          - $template: $resources.yaml('DeployGerrit.template').bind(dict(
+                warUrl => $.warUrl
+              ))
+          - $._environment.reporter.report($this, 'Gerrit deploying')
+          - $.instance.agent.call($template, $resources)
+          - $._environment.reporter.report($this, 'Gerrit deployed')
+          - $.setAttr(deployed, true)
+
+  connectLDAP:
+    Arguments:
+      - openLDAPip:
+          Contract: $.string().notNull()
+      - domain:
+          Contract: $.string().notNull()
+
+    Body:
+      - $.deploy()
+      - If: $.instance.assignFloatingIp
+        Then:
+          - $host: $.instance.floatingIpAddress
+        Else:
+          - $host: $.instance.ipAddresses[0]
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('ConnectLDAP.template').bind(dict(
+            openLDAPip => $openLDAPip,
+            host => $host,
+            domain => $domain
+          ))
+      - $._environment.reporter.report($this, 'Gerrit connecting to LDAP')
+      - $.instance.agent.call($template, $resources)
+      - $._environment.reporter.report($this, 'Gerrit connected to LDAP')
+
+  putKey:
+    Arguments:
+      - sshKey:
+          Contract: $.string().notNull()
+
+    Body:
+      - $resources: new(sys:Resources)
+      - $._environment.reporter.report($this, 'Gerrit put sshKey.')
+      - $template: $resources.yaml('PutKey.template').bind(dict(
+                sshKey => $sshKey
+              ))
+      - $.instance.agent.call($template, $resources)
